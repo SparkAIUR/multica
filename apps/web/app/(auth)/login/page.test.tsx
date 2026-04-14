@@ -4,6 +4,11 @@ import userEvent from "@testing-library/user-event";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 
+process.env.NEXT_PUBLIC_KEYCLOAK_CLIENT_ID = "kc-web";
+process.env.NEXT_PUBLIC_KEYCLOAK_ISSUER_URL = "http://localhost:8081/realms/test";
+
+const mockSearchParams = vi.hoisted(() => ({ value: "" }));
+
 function createWrapper() {
   const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return ({ children }: { children: ReactNode }) => (
@@ -11,27 +16,20 @@ function createWrapper() {
   );
 }
 
-const { mockSendCode, mockVerifyCode, mockHydrateWorkspace } = vi.hoisted(
-  () => ({
-    mockSendCode: vi.fn(),
-    mockVerifyCode: vi.fn(),
-    mockHydrateWorkspace: vi.fn(),
-  }),
-);
+const { mockGetMe } = vi.hoisted(() => ({
+  mockGetMe: vi.fn(),
+}));
 
-// Mock next/navigation
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
   usePathname: () => "/login",
-  useSearchParams: () => new URLSearchParams(),
+  useSearchParams: () => new URLSearchParams(mockSearchParams.value),
 }));
 
-// Mock auth store — shared LoginPage uses getState().sendCode/verifyCode,
-// web wrapper uses useAuthStore((s) => s.user/isLoading)
 vi.mock("@multica/core/auth", () => {
   const authState = {
-    sendCode: mockSendCode,
-    verifyCode: mockVerifyCode,
+    sendCode: vi.fn(),
+    verifyCode: vi.fn(),
     user: null,
     isLoading: false,
   };
@@ -42,14 +40,15 @@ vi.mock("@multica/core/auth", () => {
   return { useAuthStore };
 });
 
-// Mock auth-cookie
 vi.mock("@/features/auth/auth-cookie", () => ({
   setLoggedInCookie: vi.fn(),
 }));
 
-// Mock workspace store — shared LoginPage uses getState().hydrateWorkspace
 vi.mock("@multica/core/workspace", () => {
-  const wsState = { hydrateWorkspace: mockHydrateWorkspace };
+  const wsState = {
+    workspace: null,
+    hydrateWorkspace: vi.fn(),
+  };
   const useWorkspaceStore = Object.assign(
     (selector: (s: typeof wsState) => unknown) => selector(wsState),
     { getState: () => wsState },
@@ -57,91 +56,59 @@ vi.mock("@multica/core/workspace", () => {
   return { useWorkspaceStore };
 });
 
-// Mock api
 vi.mock("@multica/core/api", () => ({
   api: {
-    listWorkspaces: vi.fn().mockResolvedValue([]),
-    verifyCode: vi.fn(),
+    getMe: mockGetMe,
+    issueCliToken: vi.fn(),
+    listWorkspaces: vi.fn(),
     setToken: vi.fn(),
-    getMe: vi.fn(),
+    verifyCode: vi.fn(),
   },
 }));
 
 import LoginPage from "./page";
 
-describe("LoginPage", () => {
+describe("Web LoginPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockSearchParams.value = "";
+    mockGetMe.mockRejectedValue(new Error("unauthorized"));
+    Object.defineProperty(window, "location", {
+      writable: true,
+      value: { href: "http://localhost:3000/login" },
+    });
   });
 
-  it("renders login form with email input and continue button", () => {
+  it("renders Keycloak SSO button and hides email form", () => {
     render(<LoginPage />, { wrapper: createWrapper() });
 
     expect(screen.getByText("Sign in to Multica")).toBeInTheDocument();
-    expect(screen.getByText("Enter your email to get a login code")).toBeInTheDocument();
-    expect(screen.getByLabelText("Email")).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: "Continue" })
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Continue with Keycloak" })).toBeInTheDocument();
+    expect(screen.queryByLabelText("Email")).not.toBeInTheDocument();
   });
 
-  it("does not call sendCode when email is empty", async () => {
+  it("includes desktop + cli callback state in SSO redirect", async () => {
+    const cliCallback = "http://localhost:9876/callback";
+    mockSearchParams.value = `platform=desktop&cli_callback=${encodeURIComponent(cliCallback)}&cli_state=abc123`;
     const user = userEvent.setup();
+
     render(<LoginPage />, { wrapper: createWrapper() });
-
-    await user.click(screen.getByRole("button", { name: "Continue" }));
-    expect(mockSendCode).not.toHaveBeenCalled();
-  });
-
-  it("calls sendCode with email on submit", async () => {
-    mockSendCode.mockResolvedValueOnce(undefined);
-    const user = userEvent.setup();
-    render(<LoginPage />, { wrapper: createWrapper() });
-
-    await user.type(screen.getByLabelText("Email"), "test@multica.ai");
-    await user.click(screen.getByRole("button", { name: "Continue" }));
+    await user.click(screen.getByRole("button", { name: "Continue with Keycloak" }));
 
     await waitFor(() => {
-      expect(mockSendCode).toHaveBeenCalledWith("test@multica.ai");
+      expect(window.location.href).toContain("/protocol/openid-connect/auth?");
+      expect(window.location.href).toContain("client_id=kc-web");
+      expect(window.location.href).toContain("response_type=code");
     });
-  });
 
-  it("shows 'Sending code...' while submitting", async () => {
-    mockSendCode.mockReturnValueOnce(new Promise(() => {}));
-    const user = userEvent.setup();
-    render(<LoginPage />, { wrapper: createWrapper() });
-
-    await user.type(screen.getByLabelText("Email"), "test@multica.ai");
-    await user.click(screen.getByRole("button", { name: "Continue" }));
-
-    await waitFor(() => {
-      expect(screen.getByText("Sending code...")).toBeInTheDocument();
-    });
-  });
-
-  it("shows verification code step after sending code", async () => {
-    mockSendCode.mockResolvedValueOnce(undefined);
-    const user = userEvent.setup();
-    render(<LoginPage />, { wrapper: createWrapper() });
-
-    await user.type(screen.getByLabelText("Email"), "test@multica.ai");
-    await user.click(screen.getByRole("button", { name: "Continue" }));
-
-    await waitFor(() => {
-      expect(screen.getByText("Check your email")).toBeInTheDocument();
-    });
-  });
-
-  it("shows error when sendCode fails", async () => {
-    mockSendCode.mockRejectedValueOnce(new Error("Network error"));
-    const user = userEvent.setup();
-    render(<LoginPage />, { wrapper: createWrapper() });
-
-    await user.type(screen.getByLabelText("Email"), "test@multica.ai");
-    await user.click(screen.getByRole("button", { name: "Continue" }));
-
-    await waitFor(() => {
-      expect(screen.getByText("Network error")).toBeInTheDocument();
+    const redirectURL = new URL(window.location.href);
+    const encodedState = redirectURL.searchParams.get("state");
+    expect(encodedState).toBeTruthy();
+    const decodedState = JSON.parse(atob(encodedState || ""));
+    expect(decodedState).toMatchObject({
+      platform: "desktop",
+      cli_callback: cliCallback,
+      cli_state: "abc123",
     });
   });
 });

@@ -18,6 +18,7 @@ export interface AuthState {
   initialize: () => Promise<void>;
   sendCode: (email: string) => Promise<void>;
   verifyCode: (email: string, code: string) => Promise<User>;
+  loginWithKeycloak: (code: string, redirectUri: string) => Promise<User>;
   loginWithGoogle: (code: string, redirectUri: string) => Promise<User>;
   loginWithToken: (token: string) => Promise<User>;
   logout: () => void;
@@ -82,6 +83,17 @@ export function createAuthStore(options: AuthStoreOptions) {
 
     loginWithGoogle: async (code: string, redirectUri: string) => {
       const { token, user } = await api.googleLogin(code, redirectUri);
+      if (!cookieAuth) {
+        storage.setItem("multica_token", token);
+        api.setToken(token);
+      }
+      onLogin?.();
+      set({ user });
+      return user;
+    },
+
+    loginWithKeycloak: async (code: string, redirectUri: string) => {
+      const { token, user } = await api.keycloakLogin(code, redirectUri);
       if (!cookieAuth) {
         storage.setItem("multica_token", token);
         api.setToken(token);

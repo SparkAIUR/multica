@@ -6,7 +6,7 @@ const WEB_URL = import.meta.env.VITE_WEB_URL || "http://localhost:3000";
 export function DesktopLoginPage() {
   const lastWorkspaceId = localStorage.getItem("multica_workspace_id");
 
-  const handleGoogleLogin = () => {
+  const handleSSOLogin = () => {
     // Open web login page in the default browser with platform=desktop flag.
     // The web callback will redirect back via multica:// deep link with the token.
     window.desktopAPI.openExternal(
@@ -27,7 +27,8 @@ export function DesktopLoginPage() {
         onSuccess={() => {
           // Auth store update triggers AppContent re-render → shows DesktopShell
         }}
-        onGoogleLogin={handleGoogleLogin}
+        onSSOLogin={handleSSOLogin}
+        emailAuthEnabled={false}
       />
     </div>
   );

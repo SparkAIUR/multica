@@ -7,6 +7,7 @@ import { useAuthStore } from "@multica/core/auth";
 import { useWorkspaceStore } from "@multica/core/workspace";
 import { workspaceKeys } from "@multica/core/workspace/queries";
 import { api } from "@multica/core/api";
+import { validateCliCallback } from "@multica/views/auth";
 import {
   Card,
   CardHeader,
@@ -17,11 +18,31 @@ import {
 import { Button } from "@multica/ui/components/ui/button";
 import { Loader2 } from "lucide-react";
 
+type AuthCallbackState = {
+  platform?: string;
+  cli_callback?: string;
+  cli_state?: string;
+};
+
+function parseAuthState(raw: string | null): AuthCallbackState {
+  if (!raw) return {};
+  if (raw === "platform:desktop") {
+    return { platform: "desktop" };
+  }
+  try {
+    const decoded = atob(raw);
+    const parsed = JSON.parse(decoded);
+    return typeof parsed === "object" && parsed ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
 function CallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const qc = useQueryClient();
-  const loginWithGoogle = useAuthStore((s) => s.loginWithGoogle);
+  const loginWithKeycloak = useAuthStore((s) => s.loginWithKeycloak);
   const hydrateWorkspace = useWorkspaceStore((s) => s.hydrateWorkspace);
   const [error, setError] = useState("");
   const [desktopToken, setDesktopToken] = useState<string | null>(null);
@@ -39,15 +60,17 @@ function CallbackContent() {
       return;
     }
 
-    const state = searchParams.get("state");
-    const isDesktop = state === "platform:desktop";
+    const callbackState = parseAuthState(searchParams.get("state"));
+    const isDesktop = callbackState.platform === "desktop";
+    const cliCallback = callbackState.cli_callback;
+    const cliState = callbackState.cli_state ?? "";
 
     const redirectUri = `${window.location.origin}/auth/callback`;
 
     if (isDesktop) {
       // Desktop flow: exchange code for token, then redirect via deep link
       api
-        .googleLogin(code, redirectUri)
+        .keycloakLogin(code, redirectUri)
         .then(({ token }) => {
           setDesktopToken(token);
           window.location.href = `multica://auth/callback?token=${encodeURIComponent(token)}`;
@@ -57,8 +80,14 @@ function CallbackContent() {
         });
     } else {
       // Normal web flow
-      loginWithGoogle(code, redirectUri)
+      loginWithKeycloak(code, redirectUri)
         .then(async () => {
+          if (cliCallback && validateCliCallback(cliCallback)) {
+            const { token } = await api.issueCliToken();
+            const separator = cliCallback.includes("?") ? "&" : "?";
+            window.location.href = `${cliCallback}${separator}token=${encodeURIComponent(token)}&state=${encodeURIComponent(cliState)}`;
+            return;
+          }
           const wsList = await api.listWorkspaces();
           qc.setQueryData(workspaceKeys.list(), wsList);
           const lastWsId = localStorage.getItem("multica_workspace_id");
@@ -69,7 +98,7 @@ function CallbackContent() {
           setError(err instanceof Error ? err.message : "Login failed");
         });
     }
-  }, [searchParams, loginWithGoogle, hydrateWorkspace, router, qc]);
+  }, [searchParams, loginWithKeycloak, hydrateWorkspace, router, qc]);
 
   if (desktopToken) {
     return (

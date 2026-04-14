@@ -360,25 +360,30 @@ describe("LoginPage", () => {
   });
 
   // -------------------------------------------------------------------------
-  // Google OAuth
+  // SSO OAuth
   // -------------------------------------------------------------------------
 
-  it("renders Google OAuth button when google prop provided", () => {
+  it("renders SSO button when sso prop provided", () => {
     render(
       <LoginPage
         onSuccess={onSuccess}
-        google={{ clientId: "goog-123", redirectUri: "http://localhost/cb" }}
+        sso={{
+          authorizeUrl: "http://localhost:8081/auth",
+          clientId: "kc-123",
+          redirectUri: "http://localhost/cb",
+          label: "Continue with Keycloak",
+        }}
       />,
     );
     expect(
-      screen.getByRole("button", { name: /continue with google/i }),
+      screen.getByRole("button", { name: /continue with keycloak/i }),
     ).toBeInTheDocument();
   });
 
-  it("hides Google OAuth button when google prop omitted", () => {
+  it("hides SSO button when sso prop omitted", () => {
     render(<LoginPage onSuccess={onSuccess} />);
     expect(
-      screen.queryByRole("button", { name: /continue with google/i }),
+      screen.queryByRole("button", { name: /continue with sso/i }),
     ).not.toBeInTheDocument();
   });
 
