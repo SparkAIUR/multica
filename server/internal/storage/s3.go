@@ -7,19 +7,26 @@ import (
 	"log/slog"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
+	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 )
 
+type s3PresignGetObjectAPI interface {
+	PresignGetObject(ctx context.Context, params *s3.GetObjectInput, optFns ...func(*s3.PresignOptions)) (*v4.PresignedHTTPRequest, error)
+}
+
 type S3Storage struct {
-	client      *s3.Client
-	bucket      string
-	cdnDomain   string // if set, returned URLs use this instead of bucket name
-	endpointURL string // if set, use path-style URLs (e.g. MinIO)
+	client        *s3.Client
+	presignClient s3PresignGetObjectAPI
+	bucket        string
+	cdnDomain     string // if set, returned URLs use this instead of bucket name
+	endpointURL   string // if set, use path-style URLs (e.g. MinIO)
 }
 
 // NewS3StorageFromEnv creates an S3Storage from environment variables.
@@ -71,11 +78,13 @@ func NewS3StorageFromEnv() *S3Storage {
 	}
 
 	slog.Info("S3 storage initialized", "bucket", bucket, "region", region, "cdn_domain", cdnDomain, "endpoint_url", endpointURL)
+	client := s3.NewFromConfig(cfg, s3Opts...)
 	return &S3Storage{
-		client:      s3.NewFromConfig(cfg, s3Opts...),
-		bucket:      bucket,
-		cdnDomain:   cdnDomain,
-		endpointURL: endpointURL,
+		client:        client,
+		presignClient: s3.NewPresignClient(client),
+		bucket:        bucket,
+		cdnDomain:     cdnDomain,
+		endpointURL:   endpointURL,
 	}
 }
 
@@ -164,4 +173,24 @@ func (s *S3Storage) Upload(ctx context.Context, key string, data []byte, content
 	}
 	link := fmt.Sprintf("https://%s/%s", domain, key)
 	return link, nil
+}
+
+func (s *S3Storage) SignedDownloadURL(ctx context.Context, rawURL string, expiry time.Duration) (string, error) {
+	if s.presignClient == nil {
+		return "", fmt.Errorf("presign client is not configured")
+	}
+	key := s.KeyFromURL(rawURL)
+	if key == "" {
+		return "", fmt.Errorf("unable to resolve object key from url")
+	}
+	req, err := s.presignClient.PresignGetObject(ctx, &s3.GetObjectInput{
+		Bucket: aws.String(s.bucket),
+		Key:    aws.String(key),
+	}, func(o *s3.PresignOptions) {
+		o.Expires = expiry
+	})
+	if err != nil {
+		return "", fmt.Errorf("presign get object: %w", err)
+	}
+	return req.URL, nil
 }

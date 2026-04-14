@@ -13,6 +13,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/multica-ai/multica/server/internal/storage"
 	db "github.com/multica-ai/multica/server/pkg/db/generated"
 )
 
@@ -63,6 +64,10 @@ func (h *Handler) attachmentToResponse(a db.Attachment) AttachmentResponse {
 	}
 	if h.CFSigner != nil {
 		resp.DownloadURL = h.CFSigner.SignedURL(a.Url, time.Now().Add(30*time.Minute))
+	} else if signer, ok := h.Storage.(storage.DownloadURLSigner); ok {
+		if signed, err := signer.SignedDownloadURL(context.Background(), a.Url, 30*time.Minute); err == nil && signed != "" {
+			resp.DownloadURL = signed
+		}
 	}
 	if a.IssueID.Valid {
 		s := uuidToString(a.IssueID)
