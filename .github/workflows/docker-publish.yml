@@ -22,7 +22,7 @@ jobs:
       #   run: |
       #     set -euo pipefail
       #     test -n "${{ secrets.DOCKER_USERNAME }}" || (echo "DOCKER_USERNAME secret is required" && exit 1)
-      #     test -n "${{ secrets.DOCKER_TOKEN }}" || (echo "DOCKER_TOKEN secret is required" && exit 1)
+      #     test -n "${{ secrets.DOCKER_PASSWORD }}" || (echo "DOCKER_PASSWORD secret is required" && exit 1)
       #     test -n "${{ secrets.REGISTRY_USERNAME }}" || (echo "REGISTRY_USERNAME secret is required" && exit 1)
       #     test -n "${{ secrets.REGISTRY_PASSWORD }}" || (echo "REGISTRY_PASSWORD secret is required" && exit 1)
 
@@ -36,7 +36,7 @@ jobs:
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_TOKEN }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Login to NuDev registry
         uses: docker/login-action@v3
@@ -134,7 +134,7 @@ jobs:
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_TOKEN }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Login to NuDev registry
         uses: docker/login-action@v3
