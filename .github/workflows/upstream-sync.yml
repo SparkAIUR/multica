@@ -1,0 +1,143 @@
+name: Upstream Sync
+
+on:
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: upstream-sync-main
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Read sync config
+        id: config
+        run: |
+          set -euo pipefail
+          upstream_repo="$(jq -r '.upstream_repo // ""' .sparkai/upstream-state.json)"
+          current_tag="$(jq -r '.last_applied_release // ""' .sparkai/upstream-state.json)"
+          if [[ -z "${upstream_repo}" ]]; then
+            echo "upstream_repo is missing in .sparkai/upstream-state.json" >&2
+            exit 1
+          fi
+          echo "upstream_repo=${upstream_repo}" >> "$GITHUB_OUTPUT"
+          echo "current_tag=${current_tag}" >> "$GITHUB_OUTPUT"
+
+      - name: Read latest upstream release
+        id: upstream
+        run: |
+          set -euo pipefail
+          upstream_repo="${{ steps.config.outputs.upstream_repo }}"
+          latest_tag="$(gh api "repos/${upstream_repo}/releases/latest" --jq .tag_name)"
+          if [[ -z "${latest_tag}" || "${latest_tag}" == "null" ]]; then
+            echo "failed to resolve latest upstream release tag" >&2
+            exit 1
+          fi
+          echo "latest_tag=${latest_tag}" >> "$GITHUB_OUTPUT"
+
+      - name: Decide whether sync is needed
+        id: state
+        run: |
+          set -euo pipefail
+          current_tag="${{ steps.config.outputs.current_tag }}"
+          latest_tag="${{ steps.upstream.outputs.latest_tag }}"
+          if [[ "${current_tag}" == "${latest_tag}" ]]; then
+            echo "No new upstream release (${latest_tag})"
+            echo "should_sync=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "New upstream release found: ${latest_tag} (previous: ${current_tag})"
+          echo "should_sync=true" >> "$GITHUB_OUTPUT"
+
+      - name: Setup pnpm
+        if: steps.state.outputs.should_sync == 'true'
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        if: steps.state.outputs.should_sync == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Setup Go
+        if: steps.state.outputs.should_sync == 'true'
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.26.1"
+          cache-dependency-path: server/go.sum
+
+      - name: Sync from upstream and apply overlays
+        if: steps.state.outputs.should_sync == 'true'
+        run: |
+          set -euo pipefail
+          {
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+
+            upstream_repo="${{ steps.config.outputs.upstream_repo }}"
+            latest_tag="${{ steps.upstream.outputs.latest_tag }}"
+            upstream_url="https://github.com/${upstream_repo}.git"
+
+            git remote add upstream "${upstream_url}" || git remote set-url upstream "${upstream_url}"
+            git fetch upstream --tags --prune
+            git checkout main
+
+            git merge --no-edit "refs/tags/${latest_tag}"
+
+            chmod +x scripts/patcher/apply-patches.sh
+            ./scripts/patcher/apply-patches.sh
+
+            pnpm install --frozen-lockfile
+            pnpm typecheck
+            (cd server && go test ./...)
+
+            jq --arg tag "${latest_tag}" '.last_applied_release = $tag' .sparkai/upstream-state.json > .sparkai/upstream-state.json.tmp
+            mv .sparkai/upstream-state.json.tmp .sparkai/upstream-state.json
+
+            git add -A
+            if git diff --cached --quiet; then
+              echo "No changes to commit after sync."
+              exit 0
+            fi
+
+            git commit -m "chore(sync): apply upstream ${latest_tag} + sparkai overlays"
+            git push origin main
+          } 2>&1 | tee upstream-sync.log
+
+      - name: Create failure issue
+        if: failure()
+        run: |
+          set -euo pipefail
+          latest_tag="${{ steps.upstream.outputs.latest_tag }}"
+          upstream_repo="${{ steps.config.outputs.upstream_repo }}"
+          run_url="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          log_excerpt="$(tail -n 120 upstream-sync.log 2>/dev/null || echo "no local log output captured")"
+          title="Upstream sync failed for ${latest_tag}"
+          body=$(cat <<EOF
+          Automated upstream sync failed.
+
+          - Upstream repo: \`${upstream_repo}\`
+          - Upstream release: \`${latest_tag}\`
+          - Workflow run: ${run_url}
+
+          \`\`\`
+          ${log_excerpt}
+          \`\`\`
+          EOF
+          )
+          gh issue create --title "${title}" --body "${body}"

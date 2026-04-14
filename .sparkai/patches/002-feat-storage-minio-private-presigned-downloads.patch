@@ -1,0 +1,205 @@
+From cb73a5ce2c928ccf3fd1f4a298159fca814577ed Mon Sep 17 00:00:00 2001
+From: trisongz <ts@kmcg.co>
+Date: Tue, 14 Apr 2026 10:56:36 -0500
+Subject: [PATCH] feat(storage): minio private presigned downloads
+
+---
+ server/internal/handler/file.go    |  5 +++
+ server/internal/storage/s3.go      | 45 ++++++++++++++++++++-----
+ server/internal/storage/s3_test.go | 54 +++++++++++++++++++++++++++++-
+ server/internal/storage/storage.go |  7 ++++
+ 4 files changed, 102 insertions(+), 9 deletions(-)
+
+diff --git a/server/internal/handler/file.go b/server/internal/handler/file.go
+index 0681ede2..bdc23073 100644
+--- a/server/internal/handler/file.go
++++ b/server/internal/handler/file.go
+@@ -13,6 +13,7 @@ import (
+ 	"github.com/go-chi/chi/v5"
+ 	"github.com/google/uuid"
+ 	"github.com/jackc/pgx/v5/pgtype"
++	"github.com/multica-ai/multica/server/internal/storage"
+ 	db "github.com/multica-ai/multica/server/pkg/db/generated"
+ )
+ 
+@@ -63,6 +64,10 @@ func (h *Handler) attachmentToResponse(a db.Attachment) AttachmentResponse {
+ 	}
+ 	if h.CFSigner != nil {
+ 		resp.DownloadURL = h.CFSigner.SignedURL(a.Url, time.Now().Add(30*time.Minute))
++	} else if signer, ok := h.Storage.(storage.DownloadURLSigner); ok {
++		if signed, err := signer.SignedDownloadURL(context.Background(), a.Url, 30*time.Minute); err == nil && signed != "" {
++			resp.DownloadURL = signed
++		}
+ 	}
+ 	if a.IssueID.Valid {
+ 		s := uuidToString(a.IssueID)
+diff --git a/server/internal/storage/s3.go b/server/internal/storage/s3.go
+index 6ac13e53..f0602e3c 100644
+--- a/server/internal/storage/s3.go
++++ b/server/internal/storage/s3.go
+@@ -7,19 +7,26 @@ import (
+ 	"log/slog"
+ 	"os"
+ 	"strings"
++	"time"
+ 
+ 	"github.com/aws/aws-sdk-go-v2/aws"
++	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
+ 	"github.com/aws/aws-sdk-go-v2/config"
+ 	"github.com/aws/aws-sdk-go-v2/credentials"
+ 	"github.com/aws/aws-sdk-go-v2/service/s3"
+ 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
+ )
+ 
++type s3PresignGetObjectAPI interface {
++	PresignGetObject(ctx context.Context, params *s3.GetObjectInput, optFns ...func(*s3.PresignOptions)) (*v4.PresignedHTTPRequest, error)
++}
++
+ type S3Storage struct {
+-	client      *s3.Client
+-	bucket      string
+-	cdnDomain   string // if set, returned URLs use this instead of bucket name
+-	endpointURL string // if set, use path-style URLs (e.g. MinIO)
++	client        *s3.Client
++	presignClient s3PresignGetObjectAPI
++	bucket        string
++	cdnDomain     string // if set, returned URLs use this instead of bucket name
++	endpointURL   string // if set, use path-style URLs (e.g. MinIO)
+ }
+ 
+ // NewS3StorageFromEnv creates an S3Storage from environment variables.
+@@ -71,11 +78,13 @@ func NewS3StorageFromEnv() *S3Storage {
+ 	}
+ 
+ 	slog.Info("S3 storage initialized", "bucket", bucket, "region", region, "cdn_domain", cdnDomain, "endpoint_url", endpointURL)
++	client := s3.NewFromConfig(cfg, s3Opts...)
+ 	return &S3Storage{
+-		client:      s3.NewFromConfig(cfg, s3Opts...),
+-		bucket:      bucket,
+-		cdnDomain:   cdnDomain,
+-		endpointURL: endpointURL,
++		client:        client,
++		presignClient: s3.NewPresignClient(client),
++		bucket:        bucket,
++		cdnDomain:     cdnDomain,
++		endpointURL:   endpointURL,
+ 	}
+ }
+ 
+@@ -165,3 +174,23 @@ func (s *S3Storage) Upload(ctx context.Context, key string, data []byte, content
+ 	link := fmt.Sprintf("https://%s/%s", domain, key)
+ 	return link, nil
+ }
++
++func (s *S3Storage) SignedDownloadURL(ctx context.Context, rawURL string, expiry time.Duration) (string, error) {
++	if s.presignClient == nil {
++		return "", fmt.Errorf("presign client is not configured")
++	}
++	key := s.KeyFromURL(rawURL)
++	if key == "" {
++		return "", fmt.Errorf("unable to resolve object key from url")
++	}
++	req, err := s.presignClient.PresignGetObject(ctx, &s3.GetObjectInput{
++		Bucket: aws.String(s.bucket),
++		Key:    aws.String(key),
++	}, func(o *s3.PresignOptions) {
++		o.Expires = expiry
++	})
++	if err != nil {
++		return "", fmt.Errorf("presign get object: %w", err)
++	}
++	return req.URL, nil
++}
+diff --git a/server/internal/storage/s3_test.go b/server/internal/storage/s3_test.go
+index ed68bd8a..73d1cb8b 100644
+--- a/server/internal/storage/s3_test.go
++++ b/server/internal/storage/s3_test.go
+@@ -1,6 +1,30 @@
+ package storage
+ 
+-import "testing"
++import (
++	"context"
++	"testing"
++	"time"
++
++	"github.com/aws/aws-sdk-go-v2/aws"
++	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
++	"github.com/aws/aws-sdk-go-v2/service/s3"
++)
++
++type fakePresignClient struct {
++	lastKey string
++	url     string
++	err     error
++}
++
++func (f *fakePresignClient) PresignGetObject(_ context.Context, params *s3.GetObjectInput, _ ...func(*s3.PresignOptions)) (*v4.PresignedHTTPRequest, error) {
++	if params != nil && params.Key != nil {
++		f.lastKey = aws.ToString(params.Key)
++	}
++	if f.err != nil {
++		return nil, f.err
++	}
++	return &v4.PresignedHTTPRequest{URL: f.url}, nil
++}
+ 
+ func TestS3StorageKeyFromURL_CustomEndpointPreservesNestedKey(t *testing.T) {
+ 	s := &S3Storage{
+@@ -27,3 +51,31 @@ func TestS3StorageKeyFromURL_CustomEndpointWithTrailingSlash(t *testing.T) {
+ 		t.Fatalf("KeyFromURL(%q) = %q, want %q", rawURL, got, "uploads/abc/file.png")
+ 	}
+ }
++
++func TestS3StorageSignedDownloadURL_CustomEndpoint(t *testing.T) {
++	presign := &fakePresignClient{url: "http://localhost:9000/presigned"}
++	s := &S3Storage{
++		bucket:        "test-bucket",
++		endpointURL:   "http://localhost:9000",
++		presignClient: presign,
++	}
++
++	rawURL := "http://localhost:9000/test-bucket/uploads/abc/file.png"
++	got, err := s.SignedDownloadURL(context.Background(), rawURL, 5*time.Minute)
++	if err != nil {
++		t.Fatalf("SignedDownloadURL returned error: %v", err)
++	}
++	if got != "http://localhost:9000/presigned" {
++		t.Fatalf("SignedDownloadURL() = %q, want %q", got, "http://localhost:9000/presigned")
++	}
++	if presign.lastKey != "uploads/abc/file.png" {
++		t.Fatalf("presign key = %q, want %q", presign.lastKey, "uploads/abc/file.png")
++	}
++}
++
++func TestS3StorageSignedDownloadURL_NoPresignClient(t *testing.T) {
++	s := &S3Storage{bucket: "test-bucket"}
++	if _, err := s.SignedDownloadURL(context.Background(), "https://example.com/file.png", 5*time.Minute); err == nil {
++		t.Fatal("SignedDownloadURL expected error when presign client is not configured")
++	}
++}
+diff --git a/server/internal/storage/storage.go b/server/internal/storage/storage.go
+index b35fd222..6c7ac171 100644
+--- a/server/internal/storage/storage.go
++++ b/server/internal/storage/storage.go
+@@ -2,6 +2,7 @@ package storage
+ 
+ import (
+ 	"context"
++	"time"
+ )
+ 
+ type Storage interface {
+@@ -10,3 +11,9 @@ type Storage interface {
+ 	DeleteKeys(ctx context.Context, keys []string)
+ 	KeyFromURL(rawURL string) string
+ }
++
++// DownloadURLSigner is optional and implemented by storages that can generate
++// short-lived signed download URLs for private objects.
++type DownloadURLSigner interface {
++	SignedDownloadURL(ctx context.Context, rawURL string, expiry time.Duration) (string, error)
++}
+-- 
+2.50.1 (Apple Git-155)
+

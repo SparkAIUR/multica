@@ -1,0 +1,205 @@
+From 2aaabe5310f50976b03107884ac4a2abee5dfd37 Mon Sep 17 00:00:00 2001
+From: trisongz <ts@kmcg.co>
+Date: Tue, 14 Apr 2026 10:56:41 -0500
+Subject: [PATCH] chore(selfhost): env/compose/docs for keycloak+minio
+
+---
+ .env.example                                  | 23 ++++++----
+ Dockerfile.web                                |  8 +++-
+ .../docs/getting-started/self-hosting.mdx     | 46 ++++++++++++-------
+ docker-compose.selfhost.yml                   | 15 ++++--
+ 4 files changed, 62 insertions(+), 30 deletions(-)
+
+diff --git a/.env.example b/.env.example
+index b57ae5d9..048fce3a 100644
+--- a/.env.example
++++ b/.env.example
+@@ -21,21 +21,28 @@ MULTICA_CODEX_MODEL=
+ MULTICA_CODEX_WORKDIR=
+ MULTICA_CODEX_TIMEOUT=20m
+ 
+-# Email (Resend)
+-# For local/dev use, leave RESEND_API_KEY empty — codes print to stdout, and master code 888888 works.
+-# For production, set your Resend API key and change RESEND_FROM_EMAIL to a domain verified in your Resend account.
++# Email (Resend, optional notifications)
++# Authentication is handled by Keycloak. Configure Resend only if you need outbound emails.
+ RESEND_API_KEY=
+ RESEND_FROM_EMAIL=noreply@multica.ai
+ 
+-# Google OAuth
+-GOOGLE_CLIENT_ID=
+-GOOGLE_CLIENT_SECRET=
+-GOOGLE_REDIRECT_URI=http://localhost:3000/auth/callback
+-NEXT_PUBLIC_GOOGLE_CLIENT_ID=
++# Keycloak SSO
++KEYCLOAK_ISSUER_URL=
++KEYCLOAK_CLIENT_ID=
++KEYCLOAK_CLIENT_SECRET=
++KEYCLOAK_REDIRECT_URI=http://localhost:3000/auth/callback
++# Comma-separated exact group names. Empty means allow all authenticated users.
++KEYCLOAK_ALLOWED_GROUPS=
++NEXT_PUBLIC_KEYCLOAK_ISSUER_URL=
++NEXT_PUBLIC_KEYCLOAK_CLIENT_ID=
++NEXT_PUBLIC_KEYCLOAK_AUTH_URL=
+ 
+ # S3 / CloudFront
+ S3_BUCKET=
+ S3_REGION=us-west-2
++AWS_ENDPOINT_URL=
++AWS_ACCESS_KEY_ID=
++AWS_SECRET_ACCESS_KEY=
+ CLOUDFRONT_KEY_PAIR_ID=
+ CLOUDFRONT_PRIVATE_KEY_SECRET=multica/cloudfront-signing-key
+ CLOUDFRONT_PRIVATE_KEY=
+diff --git a/Dockerfile.web b/Dockerfile.web
+index d1f507c5..08e7ba24 100644
+--- a/Dockerfile.web
++++ b/Dockerfile.web
+@@ -36,10 +36,14 @@ RUN pnpm install --frozen-lockfile --offline
+ 
+ # Set build-time env: tells Next.js rewrites to proxy API calls to the backend service
+ ARG REMOTE_API_URL=http://backend:8080
+-ARG NEXT_PUBLIC_GOOGLE_CLIENT_ID
++ARG NEXT_PUBLIC_KEYCLOAK_ISSUER_URL
++ARG NEXT_PUBLIC_KEYCLOAK_CLIENT_ID
++ARG NEXT_PUBLIC_KEYCLOAK_AUTH_URL
+ ARG NEXT_PUBLIC_WS_URL
+ ENV REMOTE_API_URL=$REMOTE_API_URL
+-ENV NEXT_PUBLIC_GOOGLE_CLIENT_ID=$NEXT_PUBLIC_GOOGLE_CLIENT_ID
++ENV NEXT_PUBLIC_KEYCLOAK_ISSUER_URL=$NEXT_PUBLIC_KEYCLOAK_ISSUER_URL
++ENV NEXT_PUBLIC_KEYCLOAK_CLIENT_ID=$NEXT_PUBLIC_KEYCLOAK_CLIENT_ID
++ENV NEXT_PUBLIC_KEYCLOAK_AUTH_URL=$NEXT_PUBLIC_KEYCLOAK_AUTH_URL
+ ENV NEXT_PUBLIC_WS_URL=$NEXT_PUBLIC_WS_URL
+ ENV STANDALONE=true
+ 
+diff --git a/apps/docs/content/docs/getting-started/self-hosting.mdx b/apps/docs/content/docs/getting-started/self-hosting.mdx
+index 12824ab0..bf7a996d 100644
+--- a/apps/docs/content/docs/getting-started/self-hosting.mdx
++++ b/apps/docs/content/docs/getting-started/self-hosting.mdx
+@@ -31,7 +31,7 @@ curl -fsSL https://raw.githubusercontent.com/multica-ai/multica/main/scripts/ins
+ multica setup self-host
+ ```
+ 
+-This clones the repo, starts all services, installs the CLI, and configures it for localhost. Then open http://localhost:3000 — log in with any email + code **`888888`**.
++This clones the repo, starts all services, installs the CLI, and configures it for localhost. Then open http://localhost:3000 and sign in through Keycloak.
+ 
+ <Callout>
+ If the self-host server is already running and you only need the CLI on a macOS/Linux machine, install it with Homebrew: `brew install multica-ai/tap/multica`.
+@@ -62,13 +62,20 @@ Once ready:
+ If you prefer running the Docker Compose steps manually: `cp .env.example .env`, edit `JWT_SECRET`, then `docker compose -f docker-compose.selfhost.yml up -d`.
+ </Callout>
+ 
+-### Step 2 — Log In
++### Step 2 — Configure Keycloak and Log In
+ 
+-Open http://localhost:3000. Enter any email address and use verification code **`888888`** to log in.
++Set the Keycloak variables in `.env` before login:
+ 
+-<Callout>
+-This master code works in all non-production environments (when `APP_ENV` is not set to `production`). For production, configure an email provider — see [Configuration](#configuration) below.
+-</Callout>
++- `KEYCLOAK_ISSUER_URL`
++- `KEYCLOAK_CLIENT_ID`
++- `KEYCLOAK_CLIENT_SECRET`
++- `KEYCLOAK_REDIRECT_URI`
++- `NEXT_PUBLIC_KEYCLOAK_ISSUER_URL`
++- `NEXT_PUBLIC_KEYCLOAK_CLIENT_ID`
++
++If you enforce group access, also set `KEYCLOAK_ALLOWED_GROUPS` and make sure your Keycloak client includes the `groups` claim in ID tokens.
++
++After updating `.env`, restart services (`make selfhost`), open http://localhost:3000, and click **Continue with Keycloak**.
+ 
+ ### Step 3 — Install CLI & Start Daemon
+ 
+@@ -169,36 +176,43 @@ All configuration is done via environment variables. Copy `.env.example` as a st
+ | `JWT_SECRET` | **Must change from default.** Secret key for signing JWT tokens. Use a long random string. | `openssl rand -hex 32` |
+ | `FRONTEND_ORIGIN` | URL where the frontend is served (used for CORS) | `https://app.example.com` |
+ 
+-### Email (Required for Authentication)
+-
+-Multica uses email-based magic link authentication via [Resend](https://resend.com).
++### Keycloak SSO (Required for Authentication)
+ 
+ | Variable | Description |
+ |----------|-------------|
+-| `RESEND_API_KEY` | Your Resend API key |
+-| `RESEND_FROM_EMAIL` | Sender email address (default: `noreply@multica.ai`) |
++| `KEYCLOAK_ISSUER_URL` | Keycloak realm issuer URL (e.g. `https://sso.example.com/realms/multica`) |
++| `KEYCLOAK_CLIENT_ID` | OIDC client ID |
++| `KEYCLOAK_CLIENT_SECRET` | OIDC client secret |
++| `KEYCLOAK_REDIRECT_URI` | OAuth callback URL (e.g. `https://app.example.com/auth/callback`) |
++| `KEYCLOAK_ALLOWED_GROUPS` | Comma-separated exact group names. Empty allows all authenticated users. |
++
++Keycloak must include a `groups` claim in the ID token if you use `KEYCLOAK_ALLOWED_GROUPS`.
+ 
+-### Google OAuth (Optional)
++### Email (Optional outbound email)
+ 
+ | Variable | Description |
+ |----------|-------------|
+-| `GOOGLE_CLIENT_ID` | Google OAuth client ID |
+-| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret |
+-| `GOOGLE_REDIRECT_URI` | OAuth callback URL (e.g. `https://app.example.com/auth/callback`) |
++| `RESEND_API_KEY` | Your Resend API key |
++| `RESEND_FROM_EMAIL` | Sender email address (default: `noreply@multica.ai`) |
+ 
+ ### File Storage (Optional)
+ 
+-For file uploads and attachments, configure S3 and CloudFront:
++For file uploads and attachments, configure S3-compatible storage (including MinIO):
+ 
+ | Variable | Description |
+ |----------|-------------|
+ | `S3_BUCKET` | S3 bucket name |
+ | `S3_REGION` | AWS region (default: `us-west-2`) |
++| `AWS_ENDPOINT_URL` | S3-compatible endpoint (for MinIO, e.g. `http://minio:9000`) |
++| `AWS_ACCESS_KEY_ID` | Access key for S3-compatible endpoint |
++| `AWS_SECRET_ACCESS_KEY` | Secret key for S3-compatible endpoint |
+ | `CLOUDFRONT_DOMAIN` | CloudFront distribution domain |
+ | `CLOUDFRONT_KEY_PAIR_ID` | CloudFront key pair ID for signed URLs |
+ | `CLOUDFRONT_PRIVATE_KEY` | CloudFront private key (PEM format) |
+ | `COOKIE_DOMAIN` | Domain for CloudFront auth cookies |
+ 
++When CloudFront is not configured, Multica generates presigned S3/MinIO download URLs for private attachments.
++
+ ### Server
+ 
+ | Variable | Default | Description |
+diff --git a/docker-compose.selfhost.yml b/docker-compose.selfhost.yml
+index 206557cf..964cf3e4 100644
+--- a/docker-compose.selfhost.yml
++++ b/docker-compose.selfhost.yml
+@@ -44,11 +44,16 @@ services:
+       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-}
+       RESEND_API_KEY: ${RESEND_API_KEY:-}
+       RESEND_FROM_EMAIL: ${RESEND_FROM_EMAIL:-noreply@multica.ai}
+-      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+-      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+-      GOOGLE_REDIRECT_URI: ${GOOGLE_REDIRECT_URI:-http://localhost:3000/auth/callback}
++      KEYCLOAK_ISSUER_URL: ${KEYCLOAK_ISSUER_URL:-}
++      KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID:-}
++      KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET:-}
++      KEYCLOAK_REDIRECT_URI: ${KEYCLOAK_REDIRECT_URI:-http://localhost:3000/auth/callback}
++      KEYCLOAK_ALLOWED_GROUPS: ${KEYCLOAK_ALLOWED_GROUPS:-}
+       S3_BUCKET: ${S3_BUCKET:-}
+       S3_REGION: ${S3_REGION:-us-west-2}
++      AWS_ENDPOINT_URL: ${AWS_ENDPOINT_URL:-}
++      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
++      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}
+       CLOUDFRONT_DOMAIN: ${CLOUDFRONT_DOMAIN:-}
+       CLOUDFRONT_KEY_PAIR_ID: ${CLOUDFRONT_KEY_PAIR_ID:-}
+       CLOUDFRONT_PRIVATE_KEY: ${CLOUDFRONT_PRIVATE_KEY:-}
+@@ -61,7 +66,9 @@ services:
+       dockerfile: Dockerfile.web
+       args:
+         REMOTE_API_URL: http://backend:8080
+-        NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${NEXT_PUBLIC_GOOGLE_CLIENT_ID:-}
++        NEXT_PUBLIC_KEYCLOAK_ISSUER_URL: ${NEXT_PUBLIC_KEYCLOAK_ISSUER_URL:-}
++        NEXT_PUBLIC_KEYCLOAK_CLIENT_ID: ${NEXT_PUBLIC_KEYCLOAK_CLIENT_ID:-}
++        NEXT_PUBLIC_KEYCLOAK_AUTH_URL: ${NEXT_PUBLIC_KEYCLOAK_AUTH_URL:-}
+         NEXT_PUBLIC_WS_URL: ${NEXT_PUBLIC_WS_URL:-}
+     depends_on:
+       - backend
+-- 
+2.50.1 (Apple Git-155)
+
