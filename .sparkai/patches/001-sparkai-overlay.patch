@@ -1,0 +1,4343 @@
+diff --git a/.env.coolify.production.example b/.env.coolify.production.example
+new file mode 100644
+index 0000000000000000000000000000000000000000..fbd3d9c3a95b9d9b6dd91d758ed40a4aae639d5d
+--- /dev/null
++++ b/.env.coolify.production.example
+@@ -0,0 +1,51 @@
++# =============================================================================
++# Coolify Production Environment Example
++# =============================================================================
++# Copy these values into Coolify environment variables for the production stack.
++
++# Image selection
++MULTICA_BACKEND_IMAGE=hub.nu-dev.io/multica/backend:latest
++MULTICA_WEB_IMAGE=hub.nu-dev.io/multica/web:latest
++# Docker Hub alternatives:
++# MULTICA_BACKEND_IMAGE=nudevco/multica-backend:latest
++# MULTICA_WEB_IMAGE=nudevco/multica-web:latest
++
++# Database
++POSTGRES_DB=multica
++POSTGRES_USER=multica
++POSTGRES_PASSWORD=change-me
++DATABASE_URL=postgres://multica:change-me@postgres:5432/multica?sslmode=disable
++
++# Backend / App
++JWT_SECRET=change-me-to-a-long-random-secret
++FRONTEND_ORIGIN=https://multica.example.com
++CORS_ALLOWED_ORIGINS=https://multica.example.com
++MULTICA_APP_URL=https://multica.example.com
++
++# Keycloak
++KEYCLOAK_ISSUER_URL=https://keycloak.example.com/realms/multica
++KEYCLOAK_CLIENT_ID=multica-web
++KEYCLOAK_CLIENT_SECRET=change-me
++KEYCLOAK_REDIRECT_URI=https://multica.example.com/auth/callback
++# Comma-separated exact group names. Empty means allow all authenticated users.
++KEYCLOAK_ALLOWED_GROUPS=
++
++# Optional email
++RESEND_API_KEY=
++RESEND_FROM_EMAIL=noreply@multica.ai
++SMTP_HOST=
++SMTP_PORT=587
++SMTP_USERNAME=
++SMTP_PASSWORD=
++SMTP_FROM_EMAIL=
++
++# S3 / MinIO / CloudFront
++S3_BUCKET=
++S3_REGION=us-west-2
++AWS_ENDPOINT_URL=
++AWS_ACCESS_KEY_ID=
++AWS_SECRET_ACCESS_KEY=
++CLOUDFRONT_DOMAIN=
++CLOUDFRONT_KEY_PAIR_ID=
++CLOUDFRONT_PRIVATE_KEY=
++COOKIE_DOMAIN=
+diff --git a/.env.coolify.staging.example b/.env.coolify.staging.example
+new file mode 100644
+index 0000000000000000000000000000000000000000..6d820a658728733945968a2d781248502fdb07de
+--- /dev/null
++++ b/.env.coolify.staging.example
+@@ -0,0 +1,51 @@
++# =============================================================================
++# Coolify Staging Environment Example
++# =============================================================================
++# Copy these values into Coolify environment variables for the staging stack.
++
++# Image selection
++MULTICA_BACKEND_IMAGE=hub.nu-dev.io/multica/backend:staging
++MULTICA_WEB_IMAGE=hub.nu-dev.io/multica/web:staging
++# Docker Hub alternatives:
++# MULTICA_BACKEND_IMAGE=nudevco/multica-backend:staging
++# MULTICA_WEB_IMAGE=nudevco/multica-web:staging
++
++# Database
++POSTGRES_DB=multica
++POSTGRES_USER=multica
++POSTGRES_PASSWORD=change-me
++DATABASE_URL=postgres://multica:change-me@postgres:5432/multica?sslmode=disable
++
++# Backend / App
++JWT_SECRET=change-me-to-a-long-random-secret
++FRONTEND_ORIGIN=https://multica.staging.example.com
++CORS_ALLOWED_ORIGINS=https://multica.staging.example.com
++MULTICA_APP_URL=https://multica.staging.example.com
++
++# Keycloak
++KEYCLOAK_ISSUER_URL=https://keycloak.example.com/realms/multica
++KEYCLOAK_CLIENT_ID=multica-web
++KEYCLOAK_CLIENT_SECRET=change-me
++KEYCLOAK_REDIRECT_URI=https://multica.staging.example.com/auth/callback
++# Comma-separated exact group names. Empty means allow all authenticated users.
++KEYCLOAK_ALLOWED_GROUPS=
++
++# Optional email
++RESEND_API_KEY=
++RESEND_FROM_EMAIL=noreply@multica.ai
++SMTP_HOST=
++SMTP_PORT=587
++SMTP_USERNAME=
++SMTP_PASSWORD=
++SMTP_FROM_EMAIL=
++
++# S3 / MinIO / CloudFront
++S3_BUCKET=
++S3_REGION=us-west-2
++AWS_ENDPOINT_URL=
++AWS_ACCESS_KEY_ID=
++AWS_SECRET_ACCESS_KEY=
++CLOUDFRONT_DOMAIN=
++CLOUDFRONT_KEY_PAIR_ID=
++CLOUDFRONT_PRIVATE_KEY=
++COOKIE_DOMAIN=
+diff --git a/.env.example b/.env.example
+index b57ae5d916754a83780f553741907b76b1fee822..cadc521b28249843c06af836f377a49e6da6ff3f 100644
+--- a/.env.example
++++ b/.env.example
+@@ -21,21 +21,34 @@ MULTICA_CODEX_MODEL=
+ MULTICA_CODEX_WORKDIR=
+ MULTICA_CODEX_TIMEOUT=20m
+ 
+-# Email (Resend)
+-# For local/dev use, leave RESEND_API_KEY empty — codes print to stdout, and master code 888888 works.
+-# For production, set your Resend API key and change RESEND_FROM_EMAIL to a domain verified in your Resend account.
++# Email (Resend, optional notifications)
++# Authentication is handled by Keycloak. Configure SMTP or Resend only if you need outbound emails.
++# SMTP takes priority when SMTP_HOST is set.
+ RESEND_API_KEY=
+ RESEND_FROM_EMAIL=noreply@multica.ai
++SMTP_HOST=
++SMTP_PORT=587
++SMTP_USERNAME=
++SMTP_PASSWORD=
++SMTP_FROM_EMAIL=
+ 
+-# Google OAuth
+-GOOGLE_CLIENT_ID=
+-GOOGLE_CLIENT_SECRET=
+-GOOGLE_REDIRECT_URI=http://localhost:3000/auth/callback
+-NEXT_PUBLIC_GOOGLE_CLIENT_ID=
++# Keycloak SSO
++KEYCLOAK_ISSUER_URL=
++KEYCLOAK_CLIENT_ID=
++KEYCLOAK_CLIENT_SECRET=
++KEYCLOAK_REDIRECT_URI=http://localhost:3000/auth/callback
++# Comma-separated exact group names. Empty means allow all authenticated users.
++KEYCLOAK_ALLOWED_GROUPS=
++NEXT_PUBLIC_KEYCLOAK_ISSUER_URL=
++NEXT_PUBLIC_KEYCLOAK_CLIENT_ID=
++NEXT_PUBLIC_KEYCLOAK_AUTH_URL=
+ 
+ # S3 / CloudFront
+ S3_BUCKET=
+ S3_REGION=us-west-2
++AWS_ENDPOINT_URL=
++AWS_ACCESS_KEY_ID=
++AWS_SECRET_ACCESS_KEY=
+ CLOUDFRONT_KEY_PAIR_ID=
+ CLOUDFRONT_PRIVATE_KEY_SECRET=multica/cloudfront-signing-key
+ CLOUDFRONT_PRIVATE_KEY=
+diff --git a/.github/workflows/docker-publish.yml b/.github/workflows/docker-publish.yml
+new file mode 100644
+index 0000000000000000000000000000000000000000..f03b6f8f81b6de0d96773c54ed7946dba96dd843
+--- /dev/null
++++ b/.github/workflows/docker-publish.yml
+@@ -0,0 +1,200 @@
++name: Docker Publish
++
++on:
++  push:
++    tags:
++      - "v*"
++  workflow_dispatch:
++
++permissions:
++  contents: read
++
++jobs:
++  build-and-push:
++    runs-on: ubuntu-latest
++    outputs:
++      dockerhub_backend_ref: ${{ steps.refs.outputs.dockerhub_backend_ref }}
++      dockerhub_web_ref: ${{ steps.refs.outputs.dockerhub_web_ref }}
++      nudev_backend_ref: ${{ steps.refs.outputs.nudev_backend_ref }}
++      nudev_web_ref: ${{ steps.refs.outputs.nudev_web_ref }}
++    steps:
++      # - name: Validate registry credentials
++      #   run: |
++      #     set -euo pipefail
++      #     test -n "${{ secrets.DOCKERHUB_USERNAME }}" || (echo "DOCKERHUB_USERNAME secret is required" && exit 1)
++      #     test -n "${{ secrets.DOCKERHUB_TOKEN }}" || (echo "DOCKERHUB_TOKEN secret is required" && exit 1)
++      #     test -n "${{ secrets.REGISTRY_USERNAME }}" || (echo "REGISTRY_USERNAME secret is required" && exit 1)
++      #     test -n "${{ secrets.REGISTRY_PASSWORD }}" || (echo "REGISTRY_PASSWORD secret is required" && exit 1)
++
++      - name: Checkout
++        uses: actions/checkout@v4
++
++      - name: Setup Docker Buildx
++        uses: docker/setup-buildx-action@v3
++
++      - name: Login to Docker Hub
++        uses: docker/login-action@v3
++        with:
++          username: ${{ secrets.DOCKERHUB_USERNAME }}
++          password: ${{ secrets.DOCKERHUB_TOKEN }}
++
++      - name: Login to NuDev registry
++        uses: docker/login-action@v3
++        with:
++          registry: ${{ secrets.REGISTRY_URL }}
++          username: ${{ secrets.REGISTRY_USERNAME }}
++          password: ${{ secrets.REGISTRY_PASSWORD }}
++
++      - name: Compute image refs
++        id: refs
++        run: |
++          set -euo pipefail
++          short_sha="${GITHUB_SHA::7}"
++
++          dockerhub_backend_base="nudevco/multica-backend"
++          dockerhub_web_base="nudevco/multica-web"
++          nudev_backend_base="${{ secrets.REGISTRY_URL }}/multica/backend"
++          nudev_web_base="${{ secrets.REGISTRY_URL }}/multica/web"
++
++          backend_tags=(
++            "${dockerhub_backend_base}:sha-${short_sha}"
++            "${nudev_backend_base}:sha-${short_sha}"
++          )
++          web_tags=(
++            "${dockerhub_web_base}:sha-${short_sha}"
++            "${nudev_web_base}:sha-${short_sha}"
++          )
++
++          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
++            backend_tags+=(
++              "${dockerhub_backend_base}:${GITHUB_REF_NAME}"
++              "${nudev_backend_base}:${GITHUB_REF_NAME}"
++            )
++            web_tags+=(
++              "${dockerhub_web_base}:${GITHUB_REF_NAME}"
++              "${nudev_web_base}:${GITHUB_REF_NAME}"
++            )
++
++            # Publish latest only for stable tags (e.g. v1.2.3, not v1.2.3-rc1).
++            if [[ "${GITHUB_REF_NAME}" != *-* ]]; then
++              backend_tags+=(
++                "${dockerhub_backend_base}:latest"
++                "${nudev_backend_base}:latest"
++              )
++              web_tags+=(
++                "${dockerhub_web_base}:latest"
++                "${nudev_web_base}:latest"
++              )
++            fi
++          fi
++
++          {
++            echo "backend_tags<<EOF"
++            printf '%s\n' "${backend_tags[@]}"
++            echo "EOF"
++            echo "web_tags<<EOF"
++            printf '%s\n' "${web_tags[@]}"
++            echo "EOF"
++            echo "dockerhub_backend_ref=${dockerhub_backend_base}:sha-${short_sha}"
++            echo "dockerhub_web_ref=${dockerhub_web_base}:sha-${short_sha}"
++            echo "nudev_backend_ref=${nudev_backend_base}:sha-${short_sha}"
++            echo "nudev_web_ref=${nudev_web_base}:sha-${short_sha}"
++          } >> "$GITHUB_OUTPUT"
++
++      - name: Build and push backend
++        uses: docker/build-push-action@v6
++        with:
++          context: .
++          file: ./Dockerfile
++          push: true
++          tags: ${{ steps.refs.outputs.backend_tags }}
++          build-args: |
++            VERSION=${{ github.ref_name }}
++            COMMIT=${{ github.sha }}
++
++      - name: Build and push web
++        uses: docker/build-push-action@v6
++        with:
++          context: .
++          file: ./Dockerfile.web
++          push: true
++          tags: ${{ steps.refs.outputs.web_tags }}
++          build-args: |
++            REMOTE_API_URL=http://backend:8080
++            NEXT_PUBLIC_KEYCLOAK_ISSUER_URL=${{ vars.NEXT_PUBLIC_KEYCLOAK_ISSUER_URL }}
++            NEXT_PUBLIC_KEYCLOAK_CLIENT_ID=${{ vars.NEXT_PUBLIC_KEYCLOAK_CLIENT_ID }}
++            NEXT_PUBLIC_KEYCLOAK_AUTH_URL=${{ vars.NEXT_PUBLIC_KEYCLOAK_AUTH_URL }}
++            NEXT_PUBLIC_WS_URL=${{ vars.NEXT_PUBLIC_WS_URL }}
++
++  smoke:
++    runs-on: ubuntu-latest
++    needs: build-and-push
++    steps:
++      - name: Login to Docker Hub
++        uses: docker/login-action@v3
++        with:
++          username: ${{ secrets.DOCKERHUB_USERNAME }}
++          password: ${{ secrets.DOCKERHUB_TOKEN }}
++
++      - name: Login to NuDev registry
++        uses: docker/login-action@v3
++        with:
++          registry: ${{ secrets.REGISTRY_URL }}
++          username: ${{ secrets.REGISTRY_USERNAME }}
++          password: ${{ secrets.REGISTRY_PASSWORD }}
++
++      - name: Pull published images
++        run: |
++          set -euo pipefail
++          docker pull "${{ needs.build-and-push.outputs.dockerhub_backend_ref }}"
++          docker pull "${{ needs.build-and-push.outputs.dockerhub_web_ref }}"
++          docker pull "${{ needs.build-and-push.outputs.nudev_backend_ref }}"
++          docker pull "${{ needs.build-and-push.outputs.nudev_web_ref }}"
++
++      - name: Backend health smoke
++        run: |
++          set -euo pipefail
++          docker network create multica-smoke
++          docker run -d --name smoke-postgres --network multica-smoke \
++            -e POSTGRES_DB=multica \
++            -e POSTGRES_USER=multica \
++            -e POSTGRES_PASSWORD=multica \
++            pgvector/pgvector:pg17
++
++          docker run -d --name smoke-backend --network multica-smoke -p 18080:8080 \
++            -e DATABASE_URL=postgres://multica:multica@smoke-postgres:5432/multica?sslmode=disable \
++            -e JWT_SECRET=smoke-secret \
++            -e FRONTEND_ORIGIN=http://localhost:13000 \
++            "${{ needs.build-and-push.outputs.dockerhub_backend_ref }}"
++
++          for _ in {1..40}; do
++            if curl -fsS http://localhost:18080/health >/dev/null; then
++              exit 0
++            fi
++            sleep 2
++          done
++
++          echo "backend /health check failed" >&2
++          docker logs smoke-backend || true
++          exit 1
++
++      - name: Web startup smoke
++        run: |
++          set -euo pipefail
++          docker run -d --name smoke-web -p 13000:3000 "${{ needs.build-and-push.outputs.dockerhub_web_ref }}"
++          for _ in {1..30}; do
++            if curl -fsS http://localhost:13000 >/dev/null; then
++              exit 0
++            fi
++            sleep 2
++          done
++
++          echo "web startup check failed" >&2
++          docker logs smoke-web || true
++          exit 1
++
++      - name: Cleanup
++        if: always()
++        run: |
++          docker rm -f smoke-web smoke-backend smoke-postgres >/dev/null 2>&1 || true
++          docker network rm multica-smoke >/dev/null 2>&1 || true
+diff --git a/.github/workflows/release.yml b/.github/workflows/release.yml
+index c973ab409470d78f40c95ee8eb064662799841b3..9f0edcbffa24b0974d472c9ed269843a47e9661f 100644
+--- a/.github/workflows/release.yml
++++ b/.github/workflows/release.yml
+@@ -33,4 +33,3 @@ jobs:
+           args: release --clean
+         env:
+           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+-          HOMEBREW_TAP_GITHUB_TOKEN: ${{ secrets.HOMEBREW_TAP_GITHUB_TOKEN }}
+diff --git a/.github/workflows/upstream-sync.yml b/.github/workflows/upstream-sync.yml
+new file mode 100644
+index 0000000000000000000000000000000000000000..189bbb60d7bf4aaabf75ddca22fb27ab50247659
+--- /dev/null
++++ b/.github/workflows/upstream-sync.yml
+@@ -0,0 +1,143 @@
++name: Upstream Sync
++
++on:
++  schedule:
++    - cron: "17 3 * * *"
++  workflow_dispatch:
++
++permissions:
++  contents: write
++  issues: write
++
++concurrency:
++  group: upstream-sync-main
++  cancel-in-progress: false
++
++jobs:
++  sync:
++    runs-on: ubuntu-latest
++    env:
++      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
++    steps:
++      - name: Checkout
++        uses: actions/checkout@v4
++        with:
++          fetch-depth: 0
++
++      - name: Read sync config
++        id: config
++        run: |
++          set -euo pipefail
++          upstream_repo="$(jq -r '.upstream_repo // ""' .sparkai/upstream-state.json)"
++          current_tag="$(jq -r '.last_applied_release // ""' .sparkai/upstream-state.json)"
++          if [[ -z "${upstream_repo}" ]]; then
++            echo "upstream_repo is missing in .sparkai/upstream-state.json" >&2
++            exit 1
++          fi
++          echo "upstream_repo=${upstream_repo}" >> "$GITHUB_OUTPUT"
++          echo "current_tag=${current_tag}" >> "$GITHUB_OUTPUT"
++
++      - name: Read latest upstream release
++        id: upstream
++        run: |
++          set -euo pipefail
++          upstream_repo="${{ steps.config.outputs.upstream_repo }}"
++          latest_tag="$(gh api "repos/${upstream_repo}/releases/latest" --jq .tag_name)"
++          if [[ -z "${latest_tag}" || "${latest_tag}" == "null" ]]; then
++            echo "failed to resolve latest upstream release tag" >&2
++            exit 1
++          fi
++          echo "latest_tag=${latest_tag}" >> "$GITHUB_OUTPUT"
++
++      - name: Decide whether sync is needed
++        id: state
++        run: |
++          set -euo pipefail
++          current_tag="${{ steps.config.outputs.current_tag }}"
++          latest_tag="${{ steps.upstream.outputs.latest_tag }}"
++          if [[ "${current_tag}" == "${latest_tag}" ]]; then
++            echo "No new upstream release (${latest_tag})"
++            echo "should_sync=false" >> "$GITHUB_OUTPUT"
++            exit 0
++          fi
++          echo "New upstream release found: ${latest_tag} (previous: ${current_tag})"
++          echo "should_sync=true" >> "$GITHUB_OUTPUT"
++
++      - name: Setup pnpm
++        if: steps.state.outputs.should_sync == 'true'
++        uses: pnpm/action-setup@v4
++
++      - name: Setup Node.js
++        if: steps.state.outputs.should_sync == 'true'
++        uses: actions/setup-node@v4
++        with:
++          node-version: 22
++          cache: pnpm
++
++      - name: Setup Go
++        if: steps.state.outputs.should_sync == 'true'
++        uses: actions/setup-go@v5
++        with:
++          go-version: "1.26.1"
++          cache-dependency-path: server/go.sum
++
++      - name: Sync from upstream and apply overlays
++        if: steps.state.outputs.should_sync == 'true'
++        run: |
++          set -euo pipefail
++          {
++            git config user.name "github-actions[bot]"
++            git config user.email "github-actions[bot]@users.noreply.github.com"
++
++            upstream_repo="${{ steps.config.outputs.upstream_repo }}"
++            latest_tag="${{ steps.upstream.outputs.latest_tag }}"
++            upstream_url="https://github.com/${upstream_repo}.git"
++
++            git remote add upstream "${upstream_url}" || git remote set-url upstream "${upstream_url}"
++            git fetch upstream --tags --prune
++            git checkout main
++
++            git merge --no-edit "refs/tags/${latest_tag}"
++
++            chmod +x scripts/patcher/apply-patches.sh
++            ./scripts/patcher/apply-patches.sh
++
++            pnpm install --frozen-lockfile
++            pnpm typecheck
++            (cd server && go test ./...)
++
++            jq --arg tag "${latest_tag}" '.last_applied_release = $tag' .sparkai/upstream-state.json > .sparkai/upstream-state.json.tmp
++            mv .sparkai/upstream-state.json.tmp .sparkai/upstream-state.json
++
++            git add -A
++            if git diff --cached --quiet; then
++              echo "No changes to commit after sync."
++              exit 0
++            fi
++
++            git commit -m "chore(sync): apply upstream ${latest_tag} + sparkai overlays"
++            git push origin main
++          } 2>&1 | tee upstream-sync.log
++
++      - name: Create failure issue
++        if: failure()
++        run: |
++          set -euo pipefail
++          latest_tag="${{ steps.upstream.outputs.latest_tag }}"
++          upstream_repo="${{ steps.config.outputs.upstream_repo }}"
++          run_url="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
++          log_excerpt="$(tail -n 120 upstream-sync.log 2>/dev/null || echo "no local log output captured")"
++          title="Upstream sync failed for ${latest_tag}"
++          body=$(cat <<EOF
++          Automated upstream sync failed.
++
++          - Upstream repo: \`${upstream_repo}\`
++          - Upstream release: \`${latest_tag}\`
++          - Workflow run: ${run_url}
++
++          \`\`\`
++          ${log_excerpt}
++          \`\`\`
++          EOF
++          )
++          gh issue create --title "${title}" --body "${body}"
+diff --git a/.gitignore b/.gitignore
+index 9fba95f14fee4d9d57eeb851d3218011c571252d..b4d4bc02617a967ef064a2c2520809292e48f34c 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -16,6 +16,8 @@ dist-electron
+ # env
+ .env*
+ !.env.example
++!.env.coolify.staging.example
++!.env.coolify.production.example
+ 
+ # test coverage
+ coverage
+diff --git a/.goreleaser.yml b/.goreleaser.yml
+index 5737ae059c61f4684d69abfada2342cd5fcd9117..008233995f5c714199bd96cef9e68b691c8ef76b 100644
+--- a/.goreleaser.yml
++++ b/.goreleaser.yml
+@@ -45,19 +45,3 @@ changelog:
+       - "^docs:"
+       - "^test:"
+       - "^chore:"
+-
+-brews:
+-  - name: multica
+-    repository:
+-      owner: multica-ai
+-      name: homebrew-tap
+-      branch: main
+-      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+-    directory: Formula
+-    homepage: "https://github.com/multica-ai/multica"
+-    description: "Multica CLI — local agent runtime and management tool for the Multica platform"
+-    license: "Apache-2.0"
+-    install: |
+-      bin.install "multica"
+-    test: |
+-      system "#{bin}/multica", "version"
+diff --git a/.sparkai/README.md b/.sparkai/README.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..9689b2ccb91ebb97aeb493c2f591b03a5f38bf48
+--- /dev/null
++++ b/.sparkai/README.md
+@@ -0,0 +1,23 @@
++# SparkAI Overlay Workflow
++
++This fork uses a patch-overlay strategy to keep upstream sync deterministic.
++
++## Overlay Policy
++
++Keep SparkAI-specific changes on top of upstream `main`.
++The patch bundle is generated from the full overlay diff (`upstream/main...HEAD`)
++so it remains deterministic even when overlay commits are refactored.
++
++## Patch Bundle
++
++- Patches are stored in `.sparkai/patches/`.
++- `export-patches.sh` writes one deterministic patch file:
++  - `001-sparkai-overlay.patch`
++- Apply in lexical order with `scripts/patcher/apply-patches.sh`.
++- Re-export patch after intentional overlay changes with:
++
++```bash
++PATCH_BASE_REF=upstream/main scripts/patcher/export-patches.sh
++```
++
++The daily upstream sync workflow consumes this patch set idempotently.
+diff --git a/.sparkai/upstream-state.json b/.sparkai/upstream-state.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..5abaec389de7d93ff294b2069af658c8b78433ed
+--- /dev/null
++++ b/.sparkai/upstream-state.json
+@@ -0,0 +1,4 @@
++{
++  "upstream_repo": "multica-ai/multica",
++  "last_applied_release": ""
++}
+diff --git a/Dockerfile.web b/Dockerfile.web
+index d1f507c5b5e78f4b3f1c936edaabd1ce51fb9a7e..08e7ba2407f6581a5f79cbf4e63d0460bcae5bfc 100644
+--- a/Dockerfile.web
++++ b/Dockerfile.web
+@@ -36,10 +36,14 @@ RUN pnpm install --frozen-lockfile --offline
+ 
+ # Set build-time env: tells Next.js rewrites to proxy API calls to the backend service
+ ARG REMOTE_API_URL=http://backend:8080
+-ARG NEXT_PUBLIC_GOOGLE_CLIENT_ID
++ARG NEXT_PUBLIC_KEYCLOAK_ISSUER_URL
++ARG NEXT_PUBLIC_KEYCLOAK_CLIENT_ID
++ARG NEXT_PUBLIC_KEYCLOAK_AUTH_URL
+ ARG NEXT_PUBLIC_WS_URL
+ ENV REMOTE_API_URL=$REMOTE_API_URL
+-ENV NEXT_PUBLIC_GOOGLE_CLIENT_ID=$NEXT_PUBLIC_GOOGLE_CLIENT_ID
++ENV NEXT_PUBLIC_KEYCLOAK_ISSUER_URL=$NEXT_PUBLIC_KEYCLOAK_ISSUER_URL
++ENV NEXT_PUBLIC_KEYCLOAK_CLIENT_ID=$NEXT_PUBLIC_KEYCLOAK_CLIENT_ID
++ENV NEXT_PUBLIC_KEYCLOAK_AUTH_URL=$NEXT_PUBLIC_KEYCLOAK_AUTH_URL
+ ENV NEXT_PUBLIC_WS_URL=$NEXT_PUBLIC_WS_URL
+ ENV STANDALONE=true
+ 
+diff --git a/apps/desktop/src/renderer/src/pages/login.tsx b/apps/desktop/src/renderer/src/pages/login.tsx
+index aebea2a9b80cd806931d10ec2b3aad6b215534e4..3254ef0c11651e296de6fd8e653377be66646421 100644
+--- a/apps/desktop/src/renderer/src/pages/login.tsx
++++ b/apps/desktop/src/renderer/src/pages/login.tsx
+@@ -6,7 +6,7 @@ const WEB_URL = import.meta.env.VITE_WEB_URL || "http://localhost:3000";
+ export function DesktopLoginPage() {
+   const lastWorkspaceId = localStorage.getItem("multica_workspace_id");
+ 
+-  const handleGoogleLogin = () => {
++  const handleSSOLogin = () => {
+     // Open web login page in the default browser with platform=desktop flag.
+     // The web callback will redirect back via multica:// deep link with the token.
+     window.desktopAPI.openExternal(
+@@ -27,7 +27,8 @@ export function DesktopLoginPage() {
+         onSuccess={() => {
+           // Auth store update triggers AppContent re-render → shows DesktopShell
+         }}
+-        onGoogleLogin={handleGoogleLogin}
++        onSSOLogin={handleSSOLogin}
++        emailAuthEnabled={false}
+       />
+     </div>
+   );
+diff --git a/apps/docs/content/docs/getting-started/self-hosting.mdx b/apps/docs/content/docs/getting-started/self-hosting.mdx
+index 12824ab0a86df62feba95cafc27582dd4c49b0f8..121537ce656747d4b8ff8f3ea53c81aaf56604ae 100644
+--- a/apps/docs/content/docs/getting-started/self-hosting.mdx
++++ b/apps/docs/content/docs/getting-started/self-hosting.mdx
+@@ -31,7 +31,7 @@ curl -fsSL https://raw.githubusercontent.com/multica-ai/multica/main/scripts/ins
+ multica setup self-host
+ ```
+ 
+-This clones the repo, starts all services, installs the CLI, and configures it for localhost. Then open http://localhost:3000 — log in with any email + code **`888888`**.
++This clones the repo, starts all services, installs the CLI, and configures it for localhost. Then open http://localhost:3000 and sign in through Keycloak.
+ 
+ <Callout>
+ If the self-host server is already running and you only need the CLI on a macOS/Linux machine, install it with Homebrew: `brew install multica-ai/tap/multica`.
+@@ -62,13 +62,20 @@ Once ready:
+ If you prefer running the Docker Compose steps manually: `cp .env.example .env`, edit `JWT_SECRET`, then `docker compose -f docker-compose.selfhost.yml up -d`.
+ </Callout>
+ 
+-### Step 2 — Log In
++### Step 2 — Configure Keycloak and Log In
+ 
+-Open http://localhost:3000. Enter any email address and use verification code **`888888`** to log in.
++Set the Keycloak variables in `.env` before login:
+ 
+-<Callout>
+-This master code works in all non-production environments (when `APP_ENV` is not set to `production`). For production, configure an email provider — see [Configuration](#configuration) below.
+-</Callout>
++- `KEYCLOAK_ISSUER_URL`
++- `KEYCLOAK_CLIENT_ID`
++- `KEYCLOAK_CLIENT_SECRET`
++- `KEYCLOAK_REDIRECT_URI`
++- `NEXT_PUBLIC_KEYCLOAK_ISSUER_URL`
++- `NEXT_PUBLIC_KEYCLOAK_CLIENT_ID`
++
++If you enforce group access, also set `KEYCLOAK_ALLOWED_GROUPS` and make sure your Keycloak client includes the `groups` claim in ID tokens.
++
++After updating `.env`, restart services (`make selfhost`), open http://localhost:3000, and click **Continue with Keycloak**.
+ 
+ ### Step 3 — Install CLI & Start Daemon
+ 
+@@ -169,36 +176,48 @@ All configuration is done via environment variables. Copy `.env.example` as a st
+ | `JWT_SECRET` | **Must change from default.** Secret key for signing JWT tokens. Use a long random string. | `openssl rand -hex 32` |
+ | `FRONTEND_ORIGIN` | URL where the frontend is served (used for CORS) | `https://app.example.com` |
+ 
+-### Email (Required for Authentication)
+-
+-Multica uses email-based magic link authentication via [Resend](https://resend.com).
++### Keycloak SSO (Required for Authentication)
+ 
+ | Variable | Description |
+ |----------|-------------|
+-| `RESEND_API_KEY` | Your Resend API key |
+-| `RESEND_FROM_EMAIL` | Sender email address (default: `noreply@multica.ai`) |
++| `KEYCLOAK_ISSUER_URL` | Keycloak realm issuer URL (e.g. `https://sso.example.com/realms/multica`) |
++| `KEYCLOAK_CLIENT_ID` | OIDC client ID |
++| `KEYCLOAK_CLIENT_SECRET` | OIDC client secret |
++| `KEYCLOAK_REDIRECT_URI` | OAuth callback URL (e.g. `https://app.example.com/auth/callback`) |
++| `KEYCLOAK_ALLOWED_GROUPS` | Comma-separated exact group names. Empty allows all authenticated users. |
++
++Keycloak must include a `groups` claim in the ID token if you use `KEYCLOAK_ALLOWED_GROUPS`.
+ 
+-### Google OAuth (Optional)
++### Email (Optional outbound email)
+ 
+ | Variable | Description |
+ |----------|-------------|
+-| `GOOGLE_CLIENT_ID` | Google OAuth client ID |
+-| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret |
+-| `GOOGLE_REDIRECT_URI` | OAuth callback URL (e.g. `https://app.example.com/auth/callback`) |
++| `RESEND_API_KEY` | Your Resend API key |
++| `RESEND_FROM_EMAIL` | Sender email address for Resend (default: `noreply@multica.ai`) |
++| `SMTP_HOST` | SMTP server host (if set, SMTP is used instead of Resend) |
++| `SMTP_PORT` | SMTP server port (default: `587`) |
++| `SMTP_USERNAME` | SMTP username |
++| `SMTP_PASSWORD` | SMTP password |
++| `SMTP_FROM_EMAIL` | Sender email for SMTP (falls back to `RESEND_FROM_EMAIL`) |
+ 
+ ### File Storage (Optional)
+ 
+-For file uploads and attachments, configure S3 and CloudFront:
++For file uploads and attachments, configure S3-compatible storage (including MinIO):
+ 
+ | Variable | Description |
+ |----------|-------------|
+ | `S3_BUCKET` | S3 bucket name |
+ | `S3_REGION` | AWS region (default: `us-west-2`) |
++| `AWS_ENDPOINT_URL` | S3-compatible endpoint (for MinIO, e.g. `http://minio:9000`) |
++| `AWS_ACCESS_KEY_ID` | Access key for S3-compatible endpoint |
++| `AWS_SECRET_ACCESS_KEY` | Secret key for S3-compatible endpoint |
+ | `CLOUDFRONT_DOMAIN` | CloudFront distribution domain |
+ | `CLOUDFRONT_KEY_PAIR_ID` | CloudFront key pair ID for signed URLs |
+ | `CLOUDFRONT_PRIVATE_KEY` | CloudFront private key (PEM format) |
+ | `COOKIE_DOMAIN` | Domain for CloudFront auth cookies |
+ 
++When CloudFront is not configured, Multica generates presigned S3/MinIO download URLs for private attachments.
++
+ ### Server
+ 
+ | Variable | Default | Description |
+diff --git a/apps/web/app/(auth)/login/page.test.tsx b/apps/web/app/(auth)/login/page.test.tsx
+index 9bf8d8db89f30d2a5215135090447cb343d71b7e..7e266eb91d6dfcb0bba1ce1e5ba0332daf8353d0 100644
+--- a/apps/web/app/(auth)/login/page.test.tsx
++++ b/apps/web/app/(auth)/login/page.test.tsx
+@@ -4,6 +4,11 @@ import userEvent from "@testing-library/user-event";
+ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+ import type { ReactNode } from "react";
+ 
++process.env.NEXT_PUBLIC_KEYCLOAK_CLIENT_ID = "kc-web";
++process.env.NEXT_PUBLIC_KEYCLOAK_ISSUER_URL = "http://localhost:8081/realms/test";
++
++const mockSearchParams = vi.hoisted(() => ({ value: "" }));
++
+ function createWrapper() {
+   const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+   return ({ children }: { children: ReactNode }) => (
+@@ -11,27 +16,20 @@ function createWrapper() {
+   );
+ }
+ 
+-const { mockSendCode, mockVerifyCode, mockHydrateWorkspace } = vi.hoisted(
+-  () => ({
+-    mockSendCode: vi.fn(),
+-    mockVerifyCode: vi.fn(),
+-    mockHydrateWorkspace: vi.fn(),
+-  }),
+-);
++const { mockGetMe } = vi.hoisted(() => ({
++  mockGetMe: vi.fn(),
++}));
+ 
+-// Mock next/navigation
+ vi.mock("next/navigation", () => ({
+   useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
+   usePathname: () => "/login",
+-  useSearchParams: () => new URLSearchParams(),
++  useSearchParams: () => new URLSearchParams(mockSearchParams.value),
+ }));
+ 
+-// Mock auth store — shared LoginPage uses getState().sendCode/verifyCode,
+-// web wrapper uses useAuthStore((s) => s.user/isLoading)
+ vi.mock("@multica/core/auth", () => {
+   const authState = {
+-    sendCode: mockSendCode,
+-    verifyCode: mockVerifyCode,
++    sendCode: vi.fn(),
++    verifyCode: vi.fn(),
+     user: null,
+     isLoading: false,
+   };
+@@ -42,14 +40,15 @@ vi.mock("@multica/core/auth", () => {
+   return { useAuthStore };
+ });
+ 
+-// Mock auth-cookie
+ vi.mock("@/features/auth/auth-cookie", () => ({
+   setLoggedInCookie: vi.fn(),
+ }));
+ 
+-// Mock workspace store — shared LoginPage uses getState().hydrateWorkspace
+ vi.mock("@multica/core/workspace", () => {
+-  const wsState = { hydrateWorkspace: mockHydrateWorkspace };
++  const wsState = {
++    workspace: null,
++    hydrateWorkspace: vi.fn(),
++  };
+   const useWorkspaceStore = Object.assign(
+     (selector: (s: typeof wsState) => unknown) => selector(wsState),
+     { getState: () => wsState },
+@@ -57,91 +56,59 @@ vi.mock("@multica/core/workspace", () => {
+   return { useWorkspaceStore };
+ });
+ 
+-// Mock api
+ vi.mock("@multica/core/api", () => ({
+   api: {
+-    listWorkspaces: vi.fn().mockResolvedValue([]),
+-    verifyCode: vi.fn(),
++    getMe: mockGetMe,
++    issueCliToken: vi.fn(),
++    listWorkspaces: vi.fn(),
+     setToken: vi.fn(),
+-    getMe: vi.fn(),
++    verifyCode: vi.fn(),
+   },
+ }));
+ 
+ import LoginPage from "./page";
+ 
+-describe("LoginPage", () => {
++describe("Web LoginPage", () => {
+   beforeEach(() => {
+     vi.clearAllMocks();
++    mockSearchParams.value = "";
++    mockGetMe.mockRejectedValue(new Error("unauthorized"));
++    Object.defineProperty(window, "location", {
++      writable: true,
++      value: { href: "http://localhost:3000/login" },
++    });
+   });
+ 
+-  it("renders login form with email input and continue button", () => {
++  it("renders Keycloak SSO button and hides email form", () => {
+     render(<LoginPage />, { wrapper: createWrapper() });
+ 
+     expect(screen.getByText("Sign in to Multica")).toBeInTheDocument();
+-    expect(screen.getByText("Enter your email to get a login code")).toBeInTheDocument();
+-    expect(screen.getByLabelText("Email")).toBeInTheDocument();
+-    expect(
+-      screen.getByRole("button", { name: "Continue" })
+-    ).toBeInTheDocument();
++    expect(screen.getByRole("button", { name: "Continue with Keycloak" })).toBeInTheDocument();
++    expect(screen.queryByLabelText("Email")).not.toBeInTheDocument();
+   });
+ 
+-  it("does not call sendCode when email is empty", async () => {
++  it("includes desktop + cli callback state in SSO redirect", async () => {
++    const cliCallback = "http://localhost:9876/callback";
++    mockSearchParams.value = `platform=desktop&cli_callback=${encodeURIComponent(cliCallback)}&cli_state=abc123`;
+     const user = userEvent.setup();
+-    render(<LoginPage />, { wrapper: createWrapper() });
+ 
+-    await user.click(screen.getByRole("button", { name: "Continue" }));
+-    expect(mockSendCode).not.toHaveBeenCalled();
+-  });
+-
+-  it("calls sendCode with email on submit", async () => {
+-    mockSendCode.mockResolvedValueOnce(undefined);
+-    const user = userEvent.setup();
+     render(<LoginPage />, { wrapper: createWrapper() });
+-
+-    await user.type(screen.getByLabelText("Email"), "test@multica.ai");
+-    await user.click(screen.getByRole("button", { name: "Continue" }));
++    await user.click(screen.getByRole("button", { name: "Continue with Keycloak" }));
+ 
+     await waitFor(() => {
+-      expect(mockSendCode).toHaveBeenCalledWith("test@multica.ai");
++      expect(window.location.href).toContain("/protocol/openid-connect/auth?");
++      expect(window.location.href).toContain("client_id=kc-web");
++      expect(window.location.href).toContain("response_type=code");
+     });
+-  });
+-
+-  it("shows 'Sending code...' while submitting", async () => {
+-    mockSendCode.mockReturnValueOnce(new Promise(() => {}));
+-    const user = userEvent.setup();
+-    render(<LoginPage />, { wrapper: createWrapper() });
+-
+-    await user.type(screen.getByLabelText("Email"), "test@multica.ai");
+-    await user.click(screen.getByRole("button", { name: "Continue" }));
+ 
+-    await waitFor(() => {
+-      expect(screen.getByText("Sending code...")).toBeInTheDocument();
+-    });
+-  });
+-
+-  it("shows verification code step after sending code", async () => {
+-    mockSendCode.mockResolvedValueOnce(undefined);
+-    const user = userEvent.setup();
+-    render(<LoginPage />, { wrapper: createWrapper() });
+-
+-    await user.type(screen.getByLabelText("Email"), "test@multica.ai");
+-    await user.click(screen.getByRole("button", { name: "Continue" }));
+-
+-    await waitFor(() => {
+-      expect(screen.getByText("Check your email")).toBeInTheDocument();
+-    });
+-  });
+-
+-  it("shows error when sendCode fails", async () => {
+-    mockSendCode.mockRejectedValueOnce(new Error("Network error"));
+-    const user = userEvent.setup();
+-    render(<LoginPage />, { wrapper: createWrapper() });
+-
+-    await user.type(screen.getByLabelText("Email"), "test@multica.ai");
+-    await user.click(screen.getByRole("button", { name: "Continue" }));
+-
+-    await waitFor(() => {
+-      expect(screen.getByText("Network error")).toBeInTheDocument();
++    const redirectURL = new URL(window.location.href);
++    const encodedState = redirectURL.searchParams.get("state");
++    expect(encodedState).toBeTruthy();
++    const decodedState = JSON.parse(atob(encodedState || ""));
++    expect(decodedState).toMatchObject({
++      platform: "desktop",
++      cli_callback: cliCallback,
++      cli_state: "abc123",
+     });
+   });
+ });
+diff --git a/apps/web/app/(auth)/login/page.tsx b/apps/web/app/(auth)/login/page.tsx
+index ea0c54c352aaaf3534d75e8bfdd95bc8a255176a..23d5a09662d4bd6c7a0f55080b66595293c2bed2 100644
+--- a/apps/web/app/(auth)/login/page.tsx
++++ b/apps/web/app/(auth)/login/page.tsx
+@@ -7,18 +7,48 @@ import { useWorkspaceStore } from "@multica/core/workspace";
+ import { setLoggedInCookie } from "@/features/auth/auth-cookie";
+ import { LoginPage, validateCliCallback } from "@multica/views/auth";
+ 
+-const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
++function encodeAuthState(payload: Record<string, string>): string {
++  return btoa(JSON.stringify(payload));
++}
++
++function resolveKeycloakConfig() {
++  const keycloakClientId = process.env.NEXT_PUBLIC_KEYCLOAK_CLIENT_ID;
++  const keycloakIssuerURL =
++    process.env.NEXT_PUBLIC_KEYCLOAK_ISSUER_URL?.replace(/\/$/, "");
++  const keycloakAuthorizeURL =
++    process.env.NEXT_PUBLIC_KEYCLOAK_AUTH_URL ||
++    (keycloakIssuerURL
++      ? `${keycloakIssuerURL}/protocol/openid-connect/auth`
++      : undefined);
++  return { keycloakClientId, keycloakAuthorizeURL };
++}
+ 
+ function LoginPageContent() {
+   const router = useRouter();
+   const user = useAuthStore((s) => s.user);
+   const isLoading = useAuthStore((s) => s.isLoading);
+   const searchParams = useSearchParams();
++  const { keycloakClientId, keycloakAuthorizeURL } = resolveKeycloakConfig();
+ 
+   const cliCallbackRaw = searchParams.get("cli_callback");
+   const cliState = searchParams.get("cli_state") || "";
+   const platform = searchParams.get("platform");
+   const nextUrl = searchParams.get("next") || "/issues";
++  const cliCallback =
++    cliCallbackRaw && validateCliCallback(cliCallbackRaw)
++      ? { url: cliCallbackRaw, state: cliState }
++      : undefined;
++
++  const statePayload: Record<string, string> = {};
++  if (platform === "desktop") statePayload.platform = "desktop";
++  if (cliCallback) {
++    statePayload.cli_callback = cliCallback.url;
++    statePayload.cli_state = cliCallback.state;
++  }
++  const authState =
++    Object.keys(statePayload).length > 0
++      ? encodeAuthState(statePayload)
++      : undefined;
+ 
+   // Already authenticated — redirect to dashboard (skip if CLI callback)
+   useEffect(() => {
+@@ -40,20 +70,20 @@ function LoginPageContent() {
+   return (
+     <LoginPage
+       onSuccess={handleSuccess}
+-      google={
+-        googleClientId
++      sso={
++        keycloakClientId && keycloakAuthorizeURL
+           ? {
+-              clientId: googleClientId,
++              authorizeUrl: keycloakAuthorizeURL,
++              clientId: keycloakClientId,
+               redirectUri: `${window.location.origin}/auth/callback`,
+-              state: platform === "desktop" ? "platform:desktop" : undefined,
++              state: authState,
++              scope: "openid email profile",
++              label: "Continue with Keycloak",
+             }
+           : undefined
+       }
+-      cliCallback={
+-        cliCallbackRaw && validateCliCallback(cliCallbackRaw)
+-          ? { url: cliCallbackRaw, state: cliState }
+-          : undefined
+-      }
++      emailAuthEnabled={false}
++      cliCallback={cliCallback}
+       lastWorkspaceId={lastWorkspaceId}
+       onTokenObtained={setLoggedInCookie}
+     />
+diff --git a/apps/web/app/auth/callback/page.tsx b/apps/web/app/auth/callback/page.tsx
+index 41993d083a5814a707c1369e3b9af5a6aab84069..7b623fb9ddc19cafa9548c3568a4a51f734e8266 100644
+--- a/apps/web/app/auth/callback/page.tsx
++++ b/apps/web/app/auth/callback/page.tsx
+@@ -7,6 +7,7 @@ import { useAuthStore } from "@multica/core/auth";
+ import { useWorkspaceStore } from "@multica/core/workspace";
+ import { workspaceKeys } from "@multica/core/workspace/queries";
+ import { api } from "@multica/core/api";
++import { validateCliCallback } from "@multica/views/auth";
+ import {
+   Card,
+   CardHeader,
+@@ -17,11 +18,31 @@ import {
+ import { Button } from "@multica/ui/components/ui/button";
+ import { Loader2 } from "lucide-react";
+ 
++type AuthCallbackState = {
++  platform?: string;
++  cli_callback?: string;
++  cli_state?: string;
++};
++
++function parseAuthState(raw: string | null): AuthCallbackState {
++  if (!raw) return {};
++  if (raw === "platform:desktop") {
++    return { platform: "desktop" };
++  }
++  try {
++    const decoded = atob(raw);
++    const parsed = JSON.parse(decoded);
++    return typeof parsed === "object" && parsed ? parsed : {};
++  } catch {
++    return {};
++  }
++}
++
+ function CallbackContent() {
+   const router = useRouter();
+   const searchParams = useSearchParams();
+   const qc = useQueryClient();
+-  const loginWithGoogle = useAuthStore((s) => s.loginWithGoogle);
++  const loginWithKeycloak = useAuthStore((s) => s.loginWithKeycloak);
+   const hydrateWorkspace = useWorkspaceStore((s) => s.hydrateWorkspace);
+   const [error, setError] = useState("");
+   const [desktopToken, setDesktopToken] = useState<string | null>(null);
+@@ -39,15 +60,17 @@ function CallbackContent() {
+       return;
+     }
+ 
+-    const state = searchParams.get("state");
+-    const isDesktop = state === "platform:desktop";
++    const callbackState = parseAuthState(searchParams.get("state"));
++    const isDesktop = callbackState.platform === "desktop";
++    const cliCallback = callbackState.cli_callback;
++    const cliState = callbackState.cli_state ?? "";
+ 
+     const redirectUri = `${window.location.origin}/auth/callback`;
+ 
+     if (isDesktop) {
+       // Desktop flow: exchange code for token, then redirect via deep link
+       api
+-        .googleLogin(code, redirectUri)
++        .keycloakLogin(code, redirectUri)
+         .then(({ token }) => {
+           setDesktopToken(token);
+           window.location.href = `multica://auth/callback?token=${encodeURIComponent(token)}`;
+@@ -57,8 +80,14 @@ function CallbackContent() {
+         });
+     } else {
+       // Normal web flow
+-      loginWithGoogle(code, redirectUri)
++      loginWithKeycloak(code, redirectUri)
+         .then(async () => {
++          if (cliCallback && validateCliCallback(cliCallback)) {
++            const { token } = await api.issueCliToken();
++            const separator = cliCallback.includes("?") ? "&" : "?";
++            window.location.href = `${cliCallback}${separator}token=${encodeURIComponent(token)}&state=${encodeURIComponent(cliState)}`;
++            return;
++          }
+           const wsList = await api.listWorkspaces();
+           qc.setQueryData(workspaceKeys.list(), wsList);
+           const lastWsId = localStorage.getItem("multica_workspace_id");
+@@ -69,7 +98,7 @@ function CallbackContent() {
+           setError(err instanceof Error ? err.message : "Login failed");
+         });
+     }
+-  }, [searchParams, loginWithGoogle, hydrateWorkspace, router, qc]);
++  }, [searchParams, loginWithKeycloak, hydrateWorkspace, router, qc]);
+ 
+   if (desktopToken) {
+     return (
+diff --git a/docker-compose.coolify.production.yml b/docker-compose.coolify.production.yml
+new file mode 100644
+index 0000000000000000000000000000000000000000..c5c33bdd1fd3e5fb6ead2d1cc52b36760315207f
+--- /dev/null
++++ b/docker-compose.coolify.production.yml
+@@ -0,0 +1,112 @@
++# =============================================================================
++# Docker Compose - Coolify Production Deployment
++# =============================================================================
++#
++# This file is designed for image-based deployment on Coolify.
++# It does not build locally; it pulls published images.
++#
++# Recommended image inputs:
++#   MULTICA_BACKEND_IMAGE=hub.nu-dev.io/multica/backend:<tag>
++#   MULTICA_WEB_IMAGE=hub.nu-dev.io/multica/web:<tag>
++#
++# Docker Hub alternatives:
++#   MULTICA_BACKEND_IMAGE=nudevco/multica-backend:<tag>
++#   MULTICA_WEB_IMAGE=nudevco/multica-web:<tag>
++#
++# Coolify should expose `frontend:3000` as the public app service.
++
++name: multica-coolify-production
++
++services:
++  frontend:
++    image: ${MULTICA_WEB_IMAGE:-hub.nu-dev.io/multica/web:latest}
++    restart: unless-stopped
++    pull_policy: always
++    expose:
++      - "3000"
++    depends_on:
++      backend:
++        condition: service_healthy
++    environment:
++      HOSTNAME: "0.0.0.0"
++      PORT: "3000"
++    healthcheck:
++      test: ["CMD-SHELL", "wget -q -O- http://127.0.0.1:3000/ >/dev/null || exit 1"]
++      interval: 20s
++      timeout: 5s
++      retries: 10
++      start_period: 20s
++
++  backend:
++    image: ${MULTICA_BACKEND_IMAGE:-hub.nu-dev.io/multica/backend:latest}
++    restart: unless-stopped
++    pull_policy: always
++    expose:
++      - "8080"
++    depends_on:
++      postgres:
++        condition: service_healthy
++    environment:
++      # DB / server
++      DATABASE_URL: ${DATABASE_URL:-postgres://multica:multica@postgres:5432/multica?sslmode=disable}
++      PORT: "8080"
++      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
++      FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:?FRONTEND_ORIGIN is required}
++      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-}
++      MULTICA_APP_URL: ${MULTICA_APP_URL:?MULTICA_APP_URL is required}
++
++      # Keycloak SSO
++      KEYCLOAK_ISSUER_URL: ${KEYCLOAK_ISSUER_URL:?KEYCLOAK_ISSUER_URL is required}
++      KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID:?KEYCLOAK_CLIENT_ID is required}
++      KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET:?KEYCLOAK_CLIENT_SECRET is required}
++      KEYCLOAK_REDIRECT_URI: ${KEYCLOAK_REDIRECT_URI:?KEYCLOAK_REDIRECT_URI is required}
++      KEYCLOAK_ALLOWED_GROUPS: ${KEYCLOAK_ALLOWED_GROUPS:-}
++
++      # Optional outbound email
++      RESEND_API_KEY: ${RESEND_API_KEY:-}
++      RESEND_FROM_EMAIL: ${RESEND_FROM_EMAIL:-noreply@multica.ai}
++      SMTP_HOST: ${SMTP_HOST:-}
++      SMTP_PORT: ${SMTP_PORT:-587}
++      SMTP_USERNAME: ${SMTP_USERNAME:-}
++      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
++      SMTP_FROM_EMAIL: ${SMTP_FROM_EMAIL:-}
++
++      # S3 / MinIO / CloudFront
++      S3_BUCKET: ${S3_BUCKET:-}
++      S3_REGION: ${S3_REGION:-us-west-2}
++      AWS_ENDPOINT_URL: ${AWS_ENDPOINT_URL:-}
++      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
++      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}
++      CLOUDFRONT_DOMAIN: ${CLOUDFRONT_DOMAIN:-}
++      CLOUDFRONT_KEY_PAIR_ID: ${CLOUDFRONT_KEY_PAIR_ID:-}
++      CLOUDFRONT_PRIVATE_KEY: ${CLOUDFRONT_PRIVATE_KEY:-}
++      COOKIE_DOMAIN: ${COOKIE_DOMAIN:-}
++    volumes:
++      - backend_data:/app/data
++    healthcheck:
++      test: ["CMD-SHELL", "wget -q -O- http://127.0.0.1:8080/health >/dev/null || exit 1"]
++      interval: 20s
++      timeout: 5s
++      retries: 10
++      start_period: 30s
++
++  postgres:
++    image: pgvector/pgvector:pg17
++    restart: unless-stopped
++    environment:
++      POSTGRES_DB: ${POSTGRES_DB:-multica}
++      POSTGRES_USER: ${POSTGRES_USER:-multica}
++      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
++    expose:
++      - "5432"
++    volumes:
++      - postgres_data:/var/lib/postgresql/data
++    healthcheck:
++      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-multica} -d ${POSTGRES_DB:-multica}"]
++      interval: 10s
++      timeout: 5s
++      retries: 10
++
++volumes:
++  postgres_data:
++  backend_data:
+diff --git a/docker-compose.coolify.staging.yml b/docker-compose.coolify.staging.yml
+new file mode 100644
+index 0000000000000000000000000000000000000000..a2e8589043102cf60e4bec75307a889a65329cac
+--- /dev/null
++++ b/docker-compose.coolify.staging.yml
+@@ -0,0 +1,112 @@
++# =============================================================================
++# Docker Compose - Coolify Staging Deployment
++# =============================================================================
++#
++# This file is designed for image-based deployment on Coolify.
++# It does not build locally; it pulls published images.
++#
++# Recommended image inputs:
++#   MULTICA_BACKEND_IMAGE=hub.nu-dev.io/multica/backend:<tag>
++#   MULTICA_WEB_IMAGE=hub.nu-dev.io/multica/web:<tag>
++#
++# Docker Hub alternatives:
++#   MULTICA_BACKEND_IMAGE=nudevco/multica-backend:<tag>
++#   MULTICA_WEB_IMAGE=nudevco/multica-web:<tag>
++#
++# Coolify should expose `frontend:3000` as the public app service.
++
++name: multica-coolify-staging
++
++services:
++  frontend:
++    image: ${MULTICA_WEB_IMAGE:-hub.nu-dev.io/multica/web:staging}
++    restart: unless-stopped
++    pull_policy: always
++    expose:
++      - "3000"
++    depends_on:
++      backend:
++        condition: service_healthy
++    environment:
++      HOSTNAME: "0.0.0.0"
++      PORT: "3000"
++    healthcheck:
++      test: ["CMD-SHELL", "wget -q -O- http://127.0.0.1:3000/ >/dev/null || exit 1"]
++      interval: 20s
++      timeout: 5s
++      retries: 10
++      start_period: 20s
++
++  backend:
++    image: ${MULTICA_BACKEND_IMAGE:-hub.nu-dev.io/multica/backend:staging}
++    restart: unless-stopped
++    pull_policy: always
++    expose:
++      - "8080"
++    depends_on:
++      postgres:
++        condition: service_healthy
++    environment:
++      # DB / server
++      DATABASE_URL: ${DATABASE_URL:-postgres://multica:multica@postgres:5432/multica?sslmode=disable}
++      PORT: "8080"
++      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
++      FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:?FRONTEND_ORIGIN is required}
++      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-}
++      MULTICA_APP_URL: ${MULTICA_APP_URL:?MULTICA_APP_URL is required}
++
++      # Keycloak SSO
++      KEYCLOAK_ISSUER_URL: ${KEYCLOAK_ISSUER_URL:?KEYCLOAK_ISSUER_URL is required}
++      KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID:?KEYCLOAK_CLIENT_ID is required}
++      KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET:?KEYCLOAK_CLIENT_SECRET is required}
++      KEYCLOAK_REDIRECT_URI: ${KEYCLOAK_REDIRECT_URI:?KEYCLOAK_REDIRECT_URI is required}
++      KEYCLOAK_ALLOWED_GROUPS: ${KEYCLOAK_ALLOWED_GROUPS:-}
++
++      # Optional outbound email
++      RESEND_API_KEY: ${RESEND_API_KEY:-}
++      RESEND_FROM_EMAIL: ${RESEND_FROM_EMAIL:-noreply@multica.ai}
++      SMTP_HOST: ${SMTP_HOST:-}
++      SMTP_PORT: ${SMTP_PORT:-587}
++      SMTP_USERNAME: ${SMTP_USERNAME:-}
++      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
++      SMTP_FROM_EMAIL: ${SMTP_FROM_EMAIL:-}
++
++      # S3 / MinIO / CloudFront
++      S3_BUCKET: ${S3_BUCKET:-}
++      S3_REGION: ${S3_REGION:-us-west-2}
++      AWS_ENDPOINT_URL: ${AWS_ENDPOINT_URL:-}
++      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
++      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}
++      CLOUDFRONT_DOMAIN: ${CLOUDFRONT_DOMAIN:-}
++      CLOUDFRONT_KEY_PAIR_ID: ${CLOUDFRONT_KEY_PAIR_ID:-}
++      CLOUDFRONT_PRIVATE_KEY: ${CLOUDFRONT_PRIVATE_KEY:-}
++      COOKIE_DOMAIN: ${COOKIE_DOMAIN:-}
++    volumes:
++      - backend_data:/app/data
++    healthcheck:
++      test: ["CMD-SHELL", "wget -q -O- http://127.0.0.1:8080/health >/dev/null || exit 1"]
++      interval: 20s
++      timeout: 5s
++      retries: 10
++      start_period: 30s
++
++  postgres:
++    image: pgvector/pgvector:pg17
++    restart: unless-stopped
++    environment:
++      POSTGRES_DB: ${POSTGRES_DB:-multica}
++      POSTGRES_USER: ${POSTGRES_USER:-multica}
++      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
++    expose:
++      - "5432"
++    volumes:
++      - postgres_data:/var/lib/postgresql/data
++    healthcheck:
++      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-multica} -d ${POSTGRES_DB:-multica}"]
++      interval: 10s
++      timeout: 5s
++      retries: 10
++
++volumes:
++  postgres_data:
++  backend_data:
+diff --git a/docker-compose.selfhost.yml b/docker-compose.selfhost.yml
+index 206557cff8f17a6efefcee2d8b679e6184f64ac0..1a94f7ee4fb807c1e7f4eddc53907a4095a2942f 100644
+--- a/docker-compose.selfhost.yml
++++ b/docker-compose.selfhost.yml
+@@ -44,11 +44,21 @@ services:
+       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-}
+       RESEND_API_KEY: ${RESEND_API_KEY:-}
+       RESEND_FROM_EMAIL: ${RESEND_FROM_EMAIL:-noreply@multica.ai}
+-      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+-      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+-      GOOGLE_REDIRECT_URI: ${GOOGLE_REDIRECT_URI:-http://localhost:3000/auth/callback}
++      SMTP_HOST: ${SMTP_HOST:-}
++      SMTP_PORT: ${SMTP_PORT:-587}
++      SMTP_USERNAME: ${SMTP_USERNAME:-}
++      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
++      SMTP_FROM_EMAIL: ${SMTP_FROM_EMAIL:-}
++      KEYCLOAK_ISSUER_URL: ${KEYCLOAK_ISSUER_URL:-}
++      KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID:-}
++      KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET:-}
++      KEYCLOAK_REDIRECT_URI: ${KEYCLOAK_REDIRECT_URI:-http://localhost:3000/auth/callback}
++      KEYCLOAK_ALLOWED_GROUPS: ${KEYCLOAK_ALLOWED_GROUPS:-}
+       S3_BUCKET: ${S3_BUCKET:-}
+       S3_REGION: ${S3_REGION:-us-west-2}
++      AWS_ENDPOINT_URL: ${AWS_ENDPOINT_URL:-}
++      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
++      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}
+       CLOUDFRONT_DOMAIN: ${CLOUDFRONT_DOMAIN:-}
+       CLOUDFRONT_KEY_PAIR_ID: ${CLOUDFRONT_KEY_PAIR_ID:-}
+       CLOUDFRONT_PRIVATE_KEY: ${CLOUDFRONT_PRIVATE_KEY:-}
+@@ -61,7 +71,9 @@ services:
+       dockerfile: Dockerfile.web
+       args:
+         REMOTE_API_URL: http://backend:8080
+-        NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${NEXT_PUBLIC_GOOGLE_CLIENT_ID:-}
++        NEXT_PUBLIC_KEYCLOAK_ISSUER_URL: ${NEXT_PUBLIC_KEYCLOAK_ISSUER_URL:-}
++        NEXT_PUBLIC_KEYCLOAK_CLIENT_ID: ${NEXT_PUBLIC_KEYCLOAK_CLIENT_ID:-}
++        NEXT_PUBLIC_KEYCLOAK_AUTH_URL: ${NEXT_PUBLIC_KEYCLOAK_AUTH_URL:-}
+         NEXT_PUBLIC_WS_URL: ${NEXT_PUBLIC_WS_URL:-}
+     depends_on:
+       - backend
+diff --git a/packages/core/api/client.ts b/packages/core/api/client.ts
+index 2c2f987f3496c9c6957275fff0c3b19337a1e327..60da6f8090b6c05ce9e0762bb7b88a3d0ce14ef3 100644
+--- a/packages/core/api/client.ts
++++ b/packages/core/api/client.ts
+@@ -194,6 +194,13 @@ export class ApiClient {
+     });
+   }
+ 
++  async keycloakLogin(code: string, redirectUri: string): Promise<LoginResponse> {
++    return this.fetch("/auth/keycloak", {
++      method: "POST",
++      body: JSON.stringify({ code, redirect_uri: redirectUri }),
++    });
++  }
++
+   async logout(): Promise<void> {
+     await this.fetch("/auth/logout", { method: "POST" });
+   }
+diff --git a/packages/core/auth/store.ts b/packages/core/auth/store.ts
+index 4f3cc3f65cd6027e4a96245d82d60bd683f2b37a..a2f0c0d8580c69f18756483b333d4e34c8793fd5 100644
+--- a/packages/core/auth/store.ts
++++ b/packages/core/auth/store.ts
+@@ -18,6 +18,7 @@ export interface AuthState {
+   initialize: () => Promise<void>;
+   sendCode: (email: string) => Promise<void>;
+   verifyCode: (email: string, code: string) => Promise<User>;
++  loginWithKeycloak: (code: string, redirectUri: string) => Promise<User>;
+   loginWithGoogle: (code: string, redirectUri: string) => Promise<User>;
+   loginWithToken: (token: string) => Promise<User>;
+   logout: () => void;
+@@ -91,6 +92,17 @@ export function createAuthStore(options: AuthStoreOptions) {
+       return user;
+     },
+ 
++    loginWithKeycloak: async (code: string, redirectUri: string) => {
++      const { token, user } = await api.keycloakLogin(code, redirectUri);
++      if (!cookieAuth) {
++        storage.setItem("multica_token", token);
++        api.setToken(token);
++      }
++      onLogin?.();
++      set({ user });
++      return user;
++    },
++
+     loginWithToken: async (token: string) => {
+       storage.setItem("multica_token", token);
+       api.setToken(token);
+diff --git a/packages/views/auth/login-page.test.tsx b/packages/views/auth/login-page.test.tsx
+index 93a70f2d00eacaee7fcd675feee130a961493267..99349e5a40ef1faf4c09f7c32207c9a2917df8c3 100644
+--- a/packages/views/auth/login-page.test.tsx
++++ b/packages/views/auth/login-page.test.tsx
+@@ -360,25 +360,30 @@ describe("LoginPage", () => {
+   });
+ 
+   // -------------------------------------------------------------------------
+-  // Google OAuth
++  // SSO OAuth
+   // -------------------------------------------------------------------------
+ 
+-  it("renders Google OAuth button when google prop provided", () => {
++  it("renders SSO button when sso prop provided", () => {
+     render(
+       <LoginPage
+         onSuccess={onSuccess}
+-        google={{ clientId: "goog-123", redirectUri: "http://localhost/cb" }}
++        sso={{
++          authorizeUrl: "http://localhost:8081/auth",
++          clientId: "kc-123",
++          redirectUri: "http://localhost/cb",
++          label: "Continue with Keycloak",
++        }}
+       />,
+     );
+     expect(
+-      screen.getByRole("button", { name: /continue with google/i }),
++      screen.getByRole("button", { name: /continue with keycloak/i }),
+     ).toBeInTheDocument();
+   });
+ 
+-  it("hides Google OAuth button when google prop omitted", () => {
++  it("hides SSO button when sso prop omitted", () => {
+     render(<LoginPage onSuccess={onSuccess} />);
+     expect(
+-      screen.queryByRole("button", { name: /continue with google/i }),
++      screen.queryByRole("button", { name: /continue with sso/i }),
+     ).not.toBeInTheDocument();
+   });
+ 
+diff --git a/packages/views/auth/login-page.tsx b/packages/views/auth/login-page.tsx
+index 00f28f3982cd09bd603587d9a74c712565f3b51d..a19dc327045de7351f698228035c152e0125612a 100644
+--- a/packages/views/auth/login-page.tsx
++++ b/packages/views/auth/login-page.tsx
+@@ -28,11 +28,16 @@ import type { User } from "@multica/core/types";
+ // Types
+ // ---------------------------------------------------------------------------
+ 
+-interface GoogleAuthConfig {
++interface SSOAuthConfig {
++  authorizeUrl: string;
+   clientId: string;
+   redirectUri: string;
+-  /** Opaque state passed through Google OAuth (e.g. "platform:desktop"). */
++  /** OAuth scope for the provider. */
++  scope?: string;
++  /** Opaque state passed through OAuth (e.g. platform or CLI metadata). */
+   state?: string;
++  /** Button label override. */
++  label?: string;
+ }
+ 
+ interface CliCallbackConfig {
+@@ -47,16 +52,18 @@ interface LoginPageProps {
+   logo?: ReactNode;
+   /** Called after successful login + workspace hydration */
+   onSuccess: () => void;
+-  /** Google OAuth config. Omit to disable Google login. */
+-  google?: GoogleAuthConfig;
++  /** SSO/OIDC config. Omit to disable federated login button. */
++  sso?: SSOAuthConfig;
++  /** Whether email + code login should be rendered. Defaults to true. */
++  emailAuthEnabled?: boolean;
+   /** CLI callback config for authorizing CLI tools. */
+   cliCallback?: CliCallbackConfig;
+   /** Preferred workspace ID to restore after login. */
+   lastWorkspaceId?: string | null;
+   /** Called after a token is obtained (e.g. to set cookies). */
+   onTokenObtained?: () => void;
+-  /** Override Google login handler (e.g. desktop opens browser externally). When provided, renders the Google button even if `google` config is omitted. */
+-  onGoogleLogin?: () => void;
++  /** Override SSO login handler (e.g. desktop opens browser externally). */
++  onSSOLogin?: () => void;
+ }
+ 
+ // ---------------------------------------------------------------------------
+@@ -88,11 +95,12 @@ export function validateCliCallback(cliCallback: string): boolean {
+ export function LoginPage({
+   logo,
+   onSuccess,
+-  google,
++  sso,
++  emailAuthEnabled = true,
+   cliCallback,
+   lastWorkspaceId,
+   onTokenObtained,
+-  onGoogleLogin,
++  onSSOLogin,
+ }: LoginPageProps) {
+   const qc = useQueryClient();
+   const [step, setStep] = useState<"email" | "code" | "cli_confirm">("email");
+@@ -251,22 +259,20 @@ export function LoginPage({
+     }
+   };
+ 
+-  const handleGoogleLogin = () => {
+-    if (onGoogleLogin) {
+-      onGoogleLogin();
++  const handleSSOLogin = () => {
++    if (onSSOLogin) {
++      onSSOLogin();
+       return;
+     }
+-    if (!google) return;
++    if (!sso) return;
+     const params = new URLSearchParams({
+-      client_id: google.clientId,
+-      redirect_uri: google.redirectUri,
++      client_id: sso.clientId,
++      redirect_uri: sso.redirectUri,
+       response_type: "code",
+-      scope: "openid email profile",
+-      access_type: "offline",
+-      prompt: "select_account",
++      scope: sso.scope ?? "openid email profile",
+     });
+-    if (google.state) params.set("state", google.state);
+-    window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?${params}`;
++    if (sso.state) params.set("state", sso.state);
++    window.location.href = `${sso.authorizeUrl}?${params}`;
+   };
+ 
+   // -------------------------------------------------------------------------
+@@ -392,75 +398,67 @@ export function LoginPage({
+           {logo && <div className="mx-auto mb-4">{logo}</div>}
+           <CardTitle className="text-2xl">Sign in to Multica</CardTitle>
+           <CardDescription>
+-            Enter your email to get a login code
++            {emailAuthEnabled
++              ? "Enter your email to get a login code"
++              : "Continue with your SSO provider"}
+           </CardDescription>
+         </CardHeader>
+         <CardContent>
+-          <form id="login-form" onSubmit={handleSendCode} className="space-y-4">
+-            <div className="space-y-2">
+-              <Label htmlFor="login-email">Email</Label>
+-              <Input
+-                id="login-email"
+-                type="email"
+-                placeholder="you@example.com"
+-                value={email}
+-                onChange={(e) => setEmail(e.target.value)}
+-                autoFocus
+-                required
+-              />
+-            </div>
+-            {error && (
+-              <p className="text-sm text-destructive">{error}</p>
+-            )}
+-          </form>
++          {emailAuthEnabled ? (
++            <form id="login-form" onSubmit={handleSendCode} className="space-y-4">
++              <div className="space-y-2">
++                <Label htmlFor="login-email">Email</Label>
++                <Input
++                  id="login-email"
++                  type="email"
++                  placeholder="you@example.com"
++                  value={email}
++                  onChange={(e) => setEmail(e.target.value)}
++                  autoFocus
++                  required
++                />
++              </div>
++              {error && (
++                <p className="text-sm text-destructive">{error}</p>
++              )}
++            </form>
++          ) : (
++            error && <p className="text-sm text-destructive">{error}</p>
++          )}
+         </CardContent>
+         <CardFooter className="flex flex-col gap-3">
+-          <Button
+-            type="submit"
+-            form="login-form"
+-            className="w-full"
+-            size="lg"
+-            disabled={!email || loading}
+-          >
+-            {loading ? "Sending code..." : "Continue"}
+-          </Button>
+-          {(google || onGoogleLogin) && (
++          {emailAuthEnabled && (
++            <Button
++              type="submit"
++              form="login-form"
++              className="w-full"
++              size="lg"
++              disabled={!email || loading}
++            >
++              {loading ? "Sending code..." : "Continue"}
++            </Button>
++          )}
++          {(sso || onSSOLogin) && (
+             <>
+-              <div className="relative w-full">
+-                <div className="absolute inset-0 flex items-center">
+-                  <span className="w-full border-t" />
+-                </div>
+-                <div className="relative flex justify-center text-xs uppercase">
+-                  <span className="bg-card px-2 text-muted-foreground">or</span>
++              {emailAuthEnabled && (
++                <div className="relative w-full">
++                  <div className="absolute inset-0 flex items-center">
++                    <span className="w-full border-t" />
++                  </div>
++                  <div className="relative flex justify-center text-xs uppercase">
++                    <span className="bg-card px-2 text-muted-foreground">or</span>
++                  </div>
+                 </div>
+-              </div>
++              )}
+               <Button
+                 type="button"
+                 variant="outline"
+                 className="w-full"
+                 size="lg"
+-                onClick={handleGoogleLogin}
++                onClick={handleSSOLogin}
+                 disabled={loading}
+               >
+-                <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
+-                  <path
+-                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"
+-                    fill="#4285F4"
+-                  />
+-                  <path
+-                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+-                    fill="#34A853"
+-                  />
+-                  <path
+-                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+-                    fill="#FBBC05"
+-                  />
+-                  <path
+-                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+-                    fill="#EA4335"
+-                  />
+-                </svg>
+-                Continue with Google
++                {sso?.label ?? "Continue with SSO"}
+               </Button>
+             </>
+           )}
+diff --git a/scripts/patcher/apply-patches.sh b/scripts/patcher/apply-patches.sh
+new file mode 100755
+index 0000000000000000000000000000000000000000..a20f42d1a96876787f2379672cfef6f8429b3365
+--- /dev/null
++++ b/scripts/patcher/apply-patches.sh
+@@ -0,0 +1,33 @@
++#!/usr/bin/env bash
++set -euo pipefail
++
++ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
++PATCH_DIR="${ROOT_DIR}/.sparkai/patches"
++
++if [[ ! -d "${PATCH_DIR}" ]]; then
++  echo "patch directory not found: ${PATCH_DIR}" >&2
++  exit 1
++fi
++
++found_patch=0
++while IFS= read -r patch; do
++  found_patch=1
++  name="$(basename "${patch}")"
++  if git apply --reverse --check "${patch}" >/dev/null 2>&1; then
++    echo "skip ${name} (already applied)"
++    continue
++  fi
++
++  echo "apply ${name}"
++  if ! git apply --3way "${patch}"; then
++    echo "failed to apply ${name}" >&2
++    exit 1
++  fi
++done < <(find "${PATCH_DIR}" -maxdepth 1 -type f -name '*.patch' | sort)
++
++if [[ ${found_patch} -eq 0 ]]; then
++  echo "no patches found in ${PATCH_DIR}"
++  exit 0
++fi
++
++echo "all patches applied successfully"
+diff --git a/scripts/patcher/export-patches.sh b/scripts/patcher/export-patches.sh
+new file mode 100755
+index 0000000000000000000000000000000000000000..1d9356e48302e3f39278d31479b38ac7bb4e515a
+--- /dev/null
++++ b/scripts/patcher/export-patches.sh
+@@ -0,0 +1,23 @@
++#!/usr/bin/env bash
++set -euo pipefail
++
++ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
++PATCH_DIR="${ROOT_DIR}/.sparkai/patches"
++BASE_REF="${PATCH_BASE_REF:-upstream/main}"
++PATCH_FILE="${PATCH_DIR}/001-sparkai-overlay.patch"
++
++mkdir -p "${PATCH_DIR}"
++find "${PATCH_DIR}" -maxdepth 1 -type f -name '*.patch' -delete
++
++if ! git rev-parse --verify "${BASE_REF}" >/dev/null 2>&1; then
++  echo "base ref not found: ${BASE_REF}" >&2
++  exit 1
++fi
++
++if git diff --quiet "${BASE_REF}...HEAD" -- . ':(exclude).sparkai/patches/*'; then
++  echo "no overlay diff found in ${BASE_REF}...HEAD; patch directory cleared"
++  exit 0
++fi
++
++git diff --binary --full-index "${BASE_REF}...HEAD" -- . ':(exclude).sparkai/patches/*' > "${PATCH_FILE}"
++echo "exported overlay patch to ${PATCH_FILE}"
+diff --git a/server/cmd/migrate/main.go b/server/cmd/migrate/main.go
+index 8703542dfd57e2f743b20cac14e2c8a2910b50c2..78b790c5ffd050f50c1744804b309a7e04bc5eed 100644
+--- a/server/cmd/migrate/main.go
++++ b/server/cmd/migrate/main.go
+@@ -9,8 +9,8 @@ import (
+ 	"sort"
+ 	"strings"
+ 
++	"github.com/SparkAIUR/multica/server/internal/logger"
+ 	"github.com/jackc/pgx/v5/pgxpool"
+-	"github.com/multica-ai/multica/server/internal/logger"
+ )
+ 
+ func main() {
+diff --git a/server/cmd/multica/cmd_agent.go b/server/cmd/multica/cmd_agent.go
+index 9823d9a7daa90aba3d638a17ceb53cde085fdf72..d2caa766affdbbc944b4082b2dd7803b50c69cdd 100644
+--- a/server/cmd/multica/cmd_agent.go
++++ b/server/cmd/multica/cmd_agent.go
+@@ -11,8 +11,8 @@ import (
+ 
+ 	"github.com/spf13/cobra"
+ 
+-	"github.com/multica-ai/multica/server/internal/cli"
+-	"github.com/multica-ai/multica/server/internal/daemon"
++	"github.com/SparkAIUR/multica/server/internal/cli"
++	"github.com/SparkAIUR/multica/server/internal/daemon"
+ )
+ 
+ var agentCmd = &cobra.Command{
+diff --git a/server/cmd/multica/cmd_attachment.go b/server/cmd/multica/cmd_attachment.go
+index 0280d729c4cb66726491e0f563c3be110bbbaee7..b8257df7207ec738c96bfe56aff14e9b69892a00 100644
+--- a/server/cmd/multica/cmd_attachment.go
++++ b/server/cmd/multica/cmd_attachment.go
+@@ -9,7 +9,7 @@ import (
+ 
+ 	"github.com/spf13/cobra"
+ 
+-	"github.com/multica-ai/multica/server/internal/cli"
++	"github.com/SparkAIUR/multica/server/internal/cli"
+ )
+ 
+ var attachmentCmd = &cobra.Command{
+@@ -26,8 +26,8 @@ var attachmentDownloadCmd = &cobra.Command{
+ 
+   # Download to a specific directory
+   $ multica attachment download abc123 -o /tmp/images`,
+-	Args:  exactArgs(1),
+-	RunE:  runAttachmentDownload,
++	Args: exactArgs(1),
++	RunE: runAttachmentDownload,
+ }
+ 
+ func init() {
+diff --git a/server/cmd/multica/cmd_auth.go b/server/cmd/multica/cmd_auth.go
+index 52f869943b183ea8e12109aceb6a2766311a91d8..a7be4aa00ef66b6c3b9a3c257238dbe966d6ae28 100644
+--- a/server/cmd/multica/cmd_auth.go
++++ b/server/cmd/multica/cmd_auth.go
+@@ -17,7 +17,7 @@ import (
+ 
+ 	"github.com/spf13/cobra"
+ 
+-	"github.com/multica-ai/multica/server/internal/cli"
++	"github.com/SparkAIUR/multica/server/internal/cli"
+ )
+ 
+ var authCmd = &cobra.Command{
+diff --git a/server/cmd/multica/cmd_compat_test.go b/server/cmd/multica/cmd_compat_test.go
+index c9d4824c067ecbc7e24d5becfcb146acc6280bfe..a46cc1bf14500acd03351fe34017805903929a6c 100644
+--- a/server/cmd/multica/cmd_compat_test.go
++++ b/server/cmd/multica/cmd_compat_test.go
+@@ -3,7 +3,7 @@ package main
+ import (
+ 	"testing"
+ 
+-	"github.com/multica-ai/multica/server/internal/cli"
++	"github.com/SparkAIUR/multica/server/internal/cli"
+ )
+ 
+ func TestLegacyCompatibilityCommandsRemainAvailable(t *testing.T) {
+diff --git a/server/cmd/multica/cmd_config.go b/server/cmd/multica/cmd_config.go
+index bdd17a118b113c648423fcdb58973ef35760c05c..ee3133ae64b392d41d7a5b0bd70dfb9279308391 100644
+--- a/server/cmd/multica/cmd_config.go
++++ b/server/cmd/multica/cmd_config.go
+@@ -6,7 +6,7 @@ import (
+ 
+ 	"github.com/spf13/cobra"
+ 
+-	"github.com/multica-ai/multica/server/internal/cli"
++	"github.com/SparkAIUR/multica/server/internal/cli"
+ )
+ 
+ var configCmd = &cobra.Command{
+@@ -80,7 +80,6 @@ func runConfigSet(cmd *cobra.Command, args []string) error {
+ 	return nil
+ }
+ 
+-
+ func valueOrDefault(v, fallback string) string {
+ 	if v == "" {
+ 		return fallback
+diff --git a/server/cmd/multica/cmd_daemon.go b/server/cmd/multica/cmd_daemon.go
+index 7a6f89b90b034795b3d2186d58754e88d1ff1733..8fb2a727724d906fc88efd331f7a8f6453d993bf 100644
+--- a/server/cmd/multica/cmd_daemon.go
++++ b/server/cmd/multica/cmd_daemon.go
+@@ -15,9 +15,9 @@ import (
+ 
+ 	"github.com/spf13/cobra"
+ 
+-	"github.com/multica-ai/multica/server/internal/cli"
+-	"github.com/multica-ai/multica/server/internal/daemon"
+-	logger_pkg "github.com/multica-ai/multica/server/internal/logger"
++	"github.com/SparkAIUR/multica/server/internal/cli"
++	"github.com/SparkAIUR/multica/server/internal/daemon"
++	logger_pkg "github.com/SparkAIUR/multica/server/internal/logger"
+ )
+ 
+ var daemonCmd = &cobra.Command{
+diff --git a/server/cmd/multica/cmd_issue.go b/server/cmd/multica/cmd_issue.go
+index c200a94a6d8d2cfd85abe112a19c3de891b85f99..ec0c547a3abcd218eb981241e9b33bfbdc44d8f0 100644
+--- a/server/cmd/multica/cmd_issue.go
++++ b/server/cmd/multica/cmd_issue.go
+@@ -11,7 +11,7 @@ import (
+ 
+ 	"github.com/spf13/cobra"
+ 
+-	"github.com/multica-ai/multica/server/internal/cli"
++	"github.com/SparkAIUR/multica/server/internal/cli"
+ )
+ 
+ var issueCmd = &cobra.Command{
+diff --git a/server/cmd/multica/cmd_issue_test.go b/server/cmd/multica/cmd_issue_test.go
+index bccd117cd248d4dae311cb5700b28b64e555ae52..f734cdb2a9c59d1ce5122ade77a6934333596acc 100644
+--- a/server/cmd/multica/cmd_issue_test.go
++++ b/server/cmd/multica/cmd_issue_test.go
+@@ -8,7 +8,7 @@ import (
+ 	"strings"
+ 	"testing"
+ 
+-	"github.com/multica-ai/multica/server/internal/cli"
++	"github.com/SparkAIUR/multica/server/internal/cli"
+ )
+ 
+ func TestTruncateID(t *testing.T) {
+@@ -156,4 +156,3 @@ func TestValidIssueStatuses(t *testing.T) {
+ 		t.Errorf("validIssueStatuses has %d entries, expected %d", len(validIssueStatuses), len(expected))
+ 	}
+ }
+-
+diff --git a/server/cmd/multica/cmd_login.go b/server/cmd/multica/cmd_login.go
+index 4fea37da71bcec97c71248dccfcc93a8dfbceff0..1dd629369c04604fb555a0447b379737bc44dbb3 100644
+--- a/server/cmd/multica/cmd_login.go
++++ b/server/cmd/multica/cmd_login.go
+@@ -9,7 +9,7 @@ import (
+ 
+ 	"github.com/spf13/cobra"
+ 
+-	"github.com/multica-ai/multica/server/internal/cli"
++	"github.com/SparkAIUR/multica/server/internal/cli"
+ )
+ 
+ // tryResolveAppURL returns the app URL if configured, or "" if not available.
+diff --git a/server/cmd/multica/cmd_project.go b/server/cmd/multica/cmd_project.go
+index e867ff85cefe1405831c00f3ecbc2eb668bb9d32..1d280c211dcc15dd92751ae68d85216804f459f5 100644
+--- a/server/cmd/multica/cmd_project.go
++++ b/server/cmd/multica/cmd_project.go
+@@ -10,7 +10,7 @@ import (
+ 
+ 	"github.com/spf13/cobra"
+ 
+-	"github.com/multica-ai/multica/server/internal/cli"
++	"github.com/SparkAIUR/multica/server/internal/cli"
+ )
+ 
+ var projectCmd = &cobra.Command{
+diff --git a/server/cmd/multica/cmd_runtime.go b/server/cmd/multica/cmd_runtime.go
+index 04dd804965400992c5b35533af5b9d90f0096ea6..a12020b3553c90fd631eb42672cd9409dc2f694a 100644
+--- a/server/cmd/multica/cmd_runtime.go
++++ b/server/cmd/multica/cmd_runtime.go
+@@ -8,7 +8,7 @@ import (
+ 
+ 	"github.com/spf13/cobra"
+ 
+-	"github.com/multica-ai/multica/server/internal/cli"
++	"github.com/SparkAIUR/multica/server/internal/cli"
+ )
+ 
+ var runtimeCmd = &cobra.Command{
+diff --git a/server/cmd/multica/cmd_setup.go b/server/cmd/multica/cmd_setup.go
+index 71cd444a3ee4cf434e09670ee6e4dd50b9d3ba35..499fa1228d98e1a63506a0ea2a72285961fb8002 100644
+--- a/server/cmd/multica/cmd_setup.go
++++ b/server/cmd/multica/cmd_setup.go
+@@ -11,7 +11,7 @@ import (
+ 
+ 	"github.com/spf13/cobra"
+ 
+-	"github.com/multica-ai/multica/server/internal/cli"
++	"github.com/SparkAIUR/multica/server/internal/cli"
+ )
+ 
+ var setupCmd = &cobra.Command{
+diff --git a/server/cmd/multica/cmd_skill.go b/server/cmd/multica/cmd_skill.go
+index 7734b9eb3e39143ec189d5353f1b9139d9b2852e..423ca872ce10826fdadb0d1d2da3f1274ede76f1 100644
+--- a/server/cmd/multica/cmd_skill.go
++++ b/server/cmd/multica/cmd_skill.go
+@@ -11,7 +11,7 @@ import (
+ 
+ 	"github.com/spf13/cobra"
+ 
+-	"github.com/multica-ai/multica/server/internal/cli"
++	"github.com/SparkAIUR/multica/server/internal/cli"
+ )
+ 
+ var skillCmd = &cobra.Command{
+diff --git a/server/cmd/multica/cmd_update.go b/server/cmd/multica/cmd_update.go
+index c79d29bc63c5a9e3a6602b0261d49f72dd4b700a..3a1e5964131a9a7eb569763c10f4bc80f073f1e8 100644
+--- a/server/cmd/multica/cmd_update.go
++++ b/server/cmd/multica/cmd_update.go
+@@ -7,7 +7,7 @@ import (
+ 
+ 	"github.com/spf13/cobra"
+ 
+-	"github.com/multica-ai/multica/server/internal/cli"
++	"github.com/SparkAIUR/multica/server/internal/cli"
+ )
+ 
+ var updateCmd = &cobra.Command{
+diff --git a/server/cmd/multica/cmd_workspace.go b/server/cmd/multica/cmd_workspace.go
+index 44dc37d859648396a3b31a1a4f7abba6c3a339d6..2f020f0eb3e964a2feef42dfec3bbb34cc5762f9 100644
+--- a/server/cmd/multica/cmd_workspace.go
++++ b/server/cmd/multica/cmd_workspace.go
+@@ -10,7 +10,7 @@ import (
+ 
+ 	"github.com/spf13/cobra"
+ 
+-	"github.com/multica-ai/multica/server/internal/cli"
++	"github.com/SparkAIUR/multica/server/internal/cli"
+ )
+ 
+ var workspaceCmd = &cobra.Command{
+diff --git a/server/cmd/server/activity_listeners.go b/server/cmd/server/activity_listeners.go
+index 5e8864d591921258d3c645fa56c444b454ae9436..4ad751f70dc6182f6d266b05713e5ce0da3d3dec 100644
+--- a/server/cmd/server/activity_listeners.go
++++ b/server/cmd/server/activity_listeners.go
+@@ -5,11 +5,11 @@ import (
+ 	"encoding/json"
+ 	"log/slog"
+ 
+-	"github.com/multica-ai/multica/server/internal/events"
+-	"github.com/multica-ai/multica/server/internal/handler"
+-	"github.com/multica-ai/multica/server/internal/util"
+-	db "github.com/multica-ai/multica/server/pkg/db/generated"
+-	"github.com/multica-ai/multica/server/pkg/protocol"
++	"github.com/SparkAIUR/multica/server/internal/events"
++	"github.com/SparkAIUR/multica/server/internal/handler"
++	"github.com/SparkAIUR/multica/server/internal/util"
++	db "github.com/SparkAIUR/multica/server/pkg/db/generated"
++	"github.com/SparkAIUR/multica/server/pkg/protocol"
+ )
+ 
+ // registerActivityListeners wires up event bus listeners that record activity
+diff --git a/server/cmd/server/activity_listeners_test.go b/server/cmd/server/activity_listeners_test.go
+index aea726de235a153ca33b3f399e0e4021f433468c..9f31ac195127b589ace2af5538949c44be246311 100644
+--- a/server/cmd/server/activity_listeners_test.go
++++ b/server/cmd/server/activity_listeners_test.go
+@@ -5,11 +5,11 @@ import (
+ 	"encoding/json"
+ 	"testing"
+ 
+-	"github.com/multica-ai/multica/server/internal/events"
+-	"github.com/multica-ai/multica/server/internal/handler"
+-	"github.com/multica-ai/multica/server/internal/util"
+-	db "github.com/multica-ai/multica/server/pkg/db/generated"
+-	"github.com/multica-ai/multica/server/pkg/protocol"
++	"github.com/SparkAIUR/multica/server/internal/events"
++	"github.com/SparkAIUR/multica/server/internal/handler"
++	"github.com/SparkAIUR/multica/server/internal/util"
++	db "github.com/SparkAIUR/multica/server/pkg/db/generated"
++	"github.com/SparkAIUR/multica/server/pkg/protocol"
+ )
+ 
+ // listActivitiesForIssue is a test helper that fetches all activity_log records for an issue.
+@@ -156,7 +156,7 @@ func TestActivityIssueUpdated_AssigneeChanged(t *testing.T) {
+ 				AssigneeType: &assigneeType,
+ 				AssigneeID:   &assigneeID,
+ 			},
+-			"assignee_changed":  true,
++			"assignee_changed":   true,
+ 			"prev_assignee_type": (*string)(nil),
+ 			"prev_assignee_id":   (*string)(nil),
+ 		},
+diff --git a/server/cmd/server/integration_test.go b/server/cmd/server/integration_test.go
+index 042393a13f5ce6afd80ba7a7021e4f4f37f683d6..146f7a42994c067e4a1f9800ca5fc1399e975d35 100644
+--- a/server/cmd/server/integration_test.go
++++ b/server/cmd/server/integration_test.go
+@@ -17,9 +17,9 @@ import (
+ 	"github.com/gorilla/websocket"
+ 	"github.com/jackc/pgx/v5/pgxpool"
+ 
+-	"github.com/multica-ai/multica/server/internal/auth"
+-	"github.com/multica-ai/multica/server/internal/events"
+-	"github.com/multica-ai/multica/server/internal/realtime"
++	"github.com/SparkAIUR/multica/server/internal/auth"
++	"github.com/SparkAIUR/multica/server/internal/events"
++	"github.com/SparkAIUR/multica/server/internal/realtime"
+ )
+ 
+ var (
+diff --git a/server/cmd/server/listeners.go b/server/cmd/server/listeners.go
+index 1d484dfbe55a7899d6b48391c5caddaf04a8dff6..8715bea06d7ff2b43740d6c5bf92f466c22fb72b 100644
+--- a/server/cmd/server/listeners.go
++++ b/server/cmd/server/listeners.go
+@@ -6,10 +6,10 @@ import (
+ 	"log/slog"
+ 	"strings"
+ 
+-	"github.com/multica-ai/multica/server/internal/events"
+-	"github.com/multica-ai/multica/server/internal/handler"
+-	"github.com/multica-ai/multica/server/internal/realtime"
+-	"github.com/multica-ai/multica/server/pkg/protocol"
++	"github.com/SparkAIUR/multica/server/internal/events"
++	"github.com/SparkAIUR/multica/server/internal/handler"
++	"github.com/SparkAIUR/multica/server/internal/realtime"
++	"github.com/SparkAIUR/multica/server/pkg/protocol"
+ )
+ 
+ // registerListeners wires up event bus listeners for WS broadcasting.
+diff --git a/server/cmd/server/main.go b/server/cmd/server/main.go
+index 6f4ddc64f8329afa814f365e42768a3f4640a105..53410384fa47c99ec01db502363531cb2533512a 100644
+--- a/server/cmd/server/main.go
++++ b/server/cmd/server/main.go
+@@ -6,15 +6,16 @@ import (
+ 	"net/http"
+ 	"os"
+ 	"os/signal"
++	"strings"
+ 	"syscall"
+ 	"time"
+ 
+ 	"github.com/jackc/pgx/v5/pgxpool"
+ 
+-	"github.com/multica-ai/multica/server/internal/events"
+-	"github.com/multica-ai/multica/server/internal/logger"
+-	"github.com/multica-ai/multica/server/internal/realtime"
+-	db "github.com/multica-ai/multica/server/pkg/db/generated"
++	"github.com/SparkAIUR/multica/server/internal/events"
++	"github.com/SparkAIUR/multica/server/internal/logger"
++	"github.com/SparkAIUR/multica/server/internal/realtime"
++	db "github.com/SparkAIUR/multica/server/pkg/db/generated"
+ )
+ 
+ func main() {
+@@ -24,8 +25,10 @@ func main() {
+ 	if os.Getenv("JWT_SECRET") == "" {
+ 		slog.Warn("JWT_SECRET is not set — using insecure default. Set JWT_SECRET for production use.")
+ 	}
+-	if os.Getenv("RESEND_API_KEY") == "" {
+-		slog.Warn("RESEND_API_KEY is not set — email verification codes will be printed to the log instead of emailed.")
++	hasResend := strings.TrimSpace(os.Getenv("RESEND_API_KEY")) != ""
++	hasSMTP := strings.TrimSpace(os.Getenv("SMTP_HOST")) != ""
++	if !hasResend && !hasSMTP {
++		slog.Warn("No email provider is configured (set SMTP_HOST for SMTP or RESEND_API_KEY for Resend) — verification codes will be printed to the log.")
+ 	}
+ 
+ 	port := os.Getenv("PORT")
+diff --git a/server/cmd/server/notification_listeners.go b/server/cmd/server/notification_listeners.go
+index 8f5271019d577b633d33079968194a3112c86bee..aeca355f294ca608e12c811d81a206d604dbe47b 100644
+--- a/server/cmd/server/notification_listeners.go
++++ b/server/cmd/server/notification_listeners.go
+@@ -5,11 +5,11 @@ import (
+ 	"encoding/json"
+ 	"log/slog"
+ 
+-	"github.com/multica-ai/multica/server/internal/events"
+-	"github.com/multica-ai/multica/server/internal/handler"
+-	"github.com/multica-ai/multica/server/internal/util"
+-	db "github.com/multica-ai/multica/server/pkg/db/generated"
+-	"github.com/multica-ai/multica/server/pkg/protocol"
++	"github.com/SparkAIUR/multica/server/internal/events"
++	"github.com/SparkAIUR/multica/server/internal/handler"
++	"github.com/SparkAIUR/multica/server/internal/util"
++	db "github.com/SparkAIUR/multica/server/pkg/db/generated"
++	"github.com/SparkAIUR/multica/server/pkg/protocol"
+ )
+ 
+ // mention represents a parsed @mention from markdown content (local alias).
+@@ -18,7 +18,6 @@ type mention struct {
+ 	ID   string // user_id, agent_id, issue_id, or "all"
+ }
+ 
+-
+ // statusLabels maps DB status values to human-readable labels for notifications.
+ var statusLabels = map[string]string{
+ 	"backlog":     "Backlog",
+diff --git a/server/cmd/server/notification_listeners_test.go b/server/cmd/server/notification_listeners_test.go
+index 638ca813e4376b3321e32cd57fd38b27527764dc..f3b9f9640d308a7790669c9e54dd71946c919e85 100644
+--- a/server/cmd/server/notification_listeners_test.go
++++ b/server/cmd/server/notification_listeners_test.go
+@@ -4,11 +4,11 @@ import (
+ 	"context"
+ 	"testing"
+ 
+-	"github.com/multica-ai/multica/server/internal/events"
+-	"github.com/multica-ai/multica/server/internal/handler"
+-	"github.com/multica-ai/multica/server/internal/util"
+-	db "github.com/multica-ai/multica/server/pkg/db/generated"
+-	"github.com/multica-ai/multica/server/pkg/protocol"
++	"github.com/SparkAIUR/multica/server/internal/events"
++	"github.com/SparkAIUR/multica/server/internal/handler"
++	"github.com/SparkAIUR/multica/server/internal/util"
++	db "github.com/SparkAIUR/multica/server/pkg/db/generated"
++	"github.com/SparkAIUR/multica/server/pkg/protocol"
+ )
+ 
+ // notificationTest helpers — reuse the integration test fixtures from TestMain
+@@ -419,8 +419,8 @@ func TestNotification_AssigneeChanged(t *testing.T) {
+ 				AssigneeType: &newAssigneeType,
+ 				AssigneeID:   &newAssigneeID,
+ 			},
+-			"assignee_changed":  true,
+-			"status_changed":    false,
++			"assignee_changed":   true,
++			"status_changed":     false,
+ 			"prev_assignee_type": &oldAssigneeType,
+ 			"prev_assignee_id":   &oldAssigneeID,
+ 		},
+diff --git a/server/cmd/server/router.go b/server/cmd/server/router.go
+index 9a3f536a42d7c0954ac0bca967b8243b75f7fb35..41d66b53ebe75db47e3558f6269ede656bcf256b 100644
+--- a/server/cmd/server/router.go
++++ b/server/cmd/server/router.go
+@@ -12,15 +12,15 @@ import (
+ 	"github.com/jackc/pgx/v5/pgtype"
+ 	"github.com/jackc/pgx/v5/pgxpool"
+ 
+-	"github.com/multica-ai/multica/server/internal/auth"
+-	"github.com/multica-ai/multica/server/internal/events"
+-	"github.com/multica-ai/multica/server/internal/handler"
+-	"github.com/multica-ai/multica/server/internal/middleware"
+-	"github.com/multica-ai/multica/server/internal/realtime"
+-	"github.com/multica-ai/multica/server/internal/service"
+-	"github.com/multica-ai/multica/server/internal/storage"
+-	"github.com/multica-ai/multica/server/internal/util"
+-	db "github.com/multica-ai/multica/server/pkg/db/generated"
++	"github.com/SparkAIUR/multica/server/internal/auth"
++	"github.com/SparkAIUR/multica/server/internal/events"
++	"github.com/SparkAIUR/multica/server/internal/handler"
++	"github.com/SparkAIUR/multica/server/internal/middleware"
++	"github.com/SparkAIUR/multica/server/internal/realtime"
++	"github.com/SparkAIUR/multica/server/internal/service"
++	"github.com/SparkAIUR/multica/server/internal/storage"
++	"github.com/SparkAIUR/multica/server/internal/util"
++	db "github.com/SparkAIUR/multica/server/pkg/db/generated"
+ )
+ 
+ var defaultOrigins = []string{
+@@ -114,9 +114,10 @@ func NewRouter(pool *pgxpool.Pool, hub *realtime.Hub, bus *events.Bus) chi.Route
+ 	}
+ 
+ 	// Auth (public)
+-	r.Post("/auth/send-code", h.SendCode)
+-	r.Post("/auth/verify-code", h.VerifyCode)
+-	r.Post("/auth/google", h.GoogleLogin)
++	r.Post("/auth/send-code", h.AuthMethodDisabled)
++	r.Post("/auth/verify-code", h.AuthMethodDisabled)
++	r.Post("/auth/google", h.AuthMethodDisabled)
++	r.Post("/auth/keycloak", h.KeycloakLogin)
+ 	r.Post("/auth/logout", h.Logout)
+ 
+ 	// Daemon API routes (require daemon token or valid user token)
+diff --git a/server/cmd/server/runtime_sweeper.go b/server/cmd/server/runtime_sweeper.go
+index e877ad7de28fa6fd311ba7e997104eb53533950c..09baecf48fdc81ad1559460271207d238a58f418 100644
+--- a/server/cmd/server/runtime_sweeper.go
++++ b/server/cmd/server/runtime_sweeper.go
+@@ -5,11 +5,11 @@ import (
+ 	"log/slog"
+ 	"time"
+ 
++	"github.com/SparkAIUR/multica/server/internal/events"
++	"github.com/SparkAIUR/multica/server/internal/util"
++	db "github.com/SparkAIUR/multica/server/pkg/db/generated"
++	"github.com/SparkAIUR/multica/server/pkg/protocol"
+ 	"github.com/jackc/pgx/v5/pgtype"
+-	"github.com/multica-ai/multica/server/internal/events"
+-	"github.com/multica-ai/multica/server/internal/util"
+-	db "github.com/multica-ai/multica/server/pkg/db/generated"
+-	"github.com/multica-ai/multica/server/pkg/protocol"
+ )
+ 
+ const (
+diff --git a/server/cmd/server/runtime_sweeper_test.go b/server/cmd/server/runtime_sweeper_test.go
+index 5d9e7991aa7d48f463812c693f62e8616c6c1e99..da3337f467168db6f3576831b78196543678e588 100644
+--- a/server/cmd/server/runtime_sweeper_test.go
++++ b/server/cmd/server/runtime_sweeper_test.go
+@@ -6,8 +6,8 @@ import (
+ 	"sync"
+ 	"testing"
+ 
+-	"github.com/multica-ai/multica/server/internal/events"
+-	db "github.com/multica-ai/multica/server/pkg/db/generated"
++	"github.com/SparkAIUR/multica/server/internal/events"
++	db "github.com/SparkAIUR/multica/server/pkg/db/generated"
+ )
+ 
+ // setupSweeperTestFixture creates an issue and a task in the given status with
+diff --git a/server/cmd/server/subscriber_listeners.go b/server/cmd/server/subscriber_listeners.go
+index 42cda006795e9dcca411e011376381f04bdd4328..58ffcc4512567c8aa46ea8016911411d34c11a24 100644
+--- a/server/cmd/server/subscriber_listeners.go
++++ b/server/cmd/server/subscriber_listeners.go
+@@ -4,10 +4,10 @@ import (
+ 	"context"
+ 	"log/slog"
+ 
+-	"github.com/multica-ai/multica/server/internal/events"
+-	"github.com/multica-ai/multica/server/internal/handler"
+-	db "github.com/multica-ai/multica/server/pkg/db/generated"
+-	"github.com/multica-ai/multica/server/pkg/protocol"
++	"github.com/SparkAIUR/multica/server/internal/events"
++	"github.com/SparkAIUR/multica/server/internal/handler"
++	db "github.com/SparkAIUR/multica/server/pkg/db/generated"
++	"github.com/SparkAIUR/multica/server/pkg/protocol"
+ )
+ 
+ // registerSubscriberListeners wires up event bus listeners that auto-subscribe
+diff --git a/server/cmd/server/subscriber_listeners_test.go b/server/cmd/server/subscriber_listeners_test.go
+index 1af8e2a11babb6b8e5d9b184d35de138e3c0fc1b..6fd5100be3094188005883ac4e93cc310c2e7de1 100644
+--- a/server/cmd/server/subscriber_listeners_test.go
++++ b/server/cmd/server/subscriber_listeners_test.go
+@@ -4,12 +4,12 @@ import (
+ 	"context"
+ 	"testing"
+ 
++	"github.com/SparkAIUR/multica/server/internal/events"
++	"github.com/SparkAIUR/multica/server/internal/handler"
++	"github.com/SparkAIUR/multica/server/internal/util"
++	db "github.com/SparkAIUR/multica/server/pkg/db/generated"
++	"github.com/SparkAIUR/multica/server/pkg/protocol"
+ 	"github.com/jackc/pgx/v5/pgtype"
+-	"github.com/multica-ai/multica/server/internal/events"
+-	"github.com/multica-ai/multica/server/internal/handler"
+-	"github.com/multica-ai/multica/server/internal/util"
+-	db "github.com/multica-ai/multica/server/pkg/db/generated"
+-	"github.com/multica-ai/multica/server/pkg/protocol"
+ )
+ 
+ // subscriberTest helpers — reuse the integration test fixtures from TestMain
+diff --git a/server/go.mod b/server/go.mod
+index c46a511cf37a5be43aa4e95a088dc14af9b45dae..9b554131db34b0eec277defed135091d3512da7b 100644
+--- a/server/go.mod
++++ b/server/go.mod
+@@ -1,4 +1,4 @@
+-module github.com/multica-ai/multica/server
++module github.com/SparkAIUR/multica/server
+ 
+ go 1.26.1
+ 
+diff --git a/server/internal/auth/config.go b/server/internal/auth/config.go
+new file mode 100644
+index 0000000000000000000000000000000000000000..626cb9855838bb2b7cf6900d7e309f897e74b4c5
+--- /dev/null
++++ b/server/internal/auth/config.go
+@@ -0,0 +1,53 @@
++package auth
++
++import (
++	"os"
++	"strings"
++)
++
++// ParseCSVSet splits a comma-separated env value into normalized unique values.
++func ParseCSVSet(raw string) []string {
++	if strings.TrimSpace(raw) == "" {
++		return nil
++	}
++	parts := strings.Split(raw, ",")
++	out := make([]string, 0, len(parts))
++	seen := make(map[string]struct{}, len(parts))
++	for _, part := range parts {
++		value := strings.TrimSpace(part)
++		if value == "" {
++			continue
++		}
++		if _, exists := seen[value]; exists {
++			continue
++		}
++		seen[value] = struct{}{}
++		out = append(out, value)
++	}
++	return out
++}
++
++func AllowedKeycloakGroupsFromEnv() []string {
++	return ParseCSVSet(os.Getenv("KEYCLOAK_ALLOWED_GROUPS"))
++}
++
++// IsAnyGroupAllowed returns true when group filtering is disabled or at least one
++// claim group matches an allowed group exactly.
++func IsAnyGroupAllowed(claimGroups, allowedGroups []string) bool {
++	if len(allowedGroups) == 0 {
++		return true
++	}
++	if len(claimGroups) == 0 {
++		return false
++	}
++	allowed := make(map[string]struct{}, len(allowedGroups))
++	for _, group := range allowedGroups {
++		allowed[group] = struct{}{}
++	}
++	for _, group := range claimGroups {
++		if _, ok := allowed[group]; ok {
++			return true
++		}
++	}
++	return false
++}
+diff --git a/server/internal/auth/config_test.go b/server/internal/auth/config_test.go
+new file mode 100644
+index 0000000000000000000000000000000000000000..0bb7303e10e63a48fc903978b515324367fbffe5
+--- /dev/null
++++ b/server/internal/auth/config_test.go
+@@ -0,0 +1,38 @@
++package auth
++
++import "testing"
++
++func TestParseCSVSet(t *testing.T) {
++	got := ParseCSVSet(" team-a,team-b, team-a ,,team-c ")
++	want := []string{"team-a", "team-b", "team-c"}
++	if len(got) != len(want) {
++		t.Fatalf("len(ParseCSVSet) = %d, want %d", len(got), len(want))
++	}
++	for i := range want {
++		if got[i] != want[i] {
++			t.Fatalf("ParseCSVSet[%d] = %q, want %q", i, got[i], want[i])
++		}
++	}
++}
++
++func TestIsAnyGroupAllowed(t *testing.T) {
++	tests := []struct {
++		name        string
++		claimGroups []string
++		allowed     []string
++		want        bool
++	}{
++		{name: "empty allowed allows all", claimGroups: nil, allowed: nil, want: true},
++		{name: "exact match", claimGroups: []string{"team-a"}, allowed: []string{"team-a", "team-b"}, want: true},
++		{name: "no match", claimGroups: []string{"team-c"}, allowed: []string{"team-a", "team-b"}, want: false},
++		{name: "missing claim groups with policy", claimGroups: nil, allowed: []string{"team-a"}, want: false},
++	}
++	for _, tt := range tests {
++		t.Run(tt.name, func(t *testing.T) {
++			got := IsAnyGroupAllowed(tt.claimGroups, tt.allowed)
++			if got != tt.want {
++				t.Fatalf("IsAnyGroupAllowed(%v, %v) = %v, want %v", tt.claimGroups, tt.allowed, got, tt.want)
++			}
++		})
++	}
++}
+diff --git a/server/internal/auth/keycloak.go b/server/internal/auth/keycloak.go
+new file mode 100644
+index 0000000000000000000000000000000000000000..c646889870c02058250c62bfdb421f6a213cc5f2
+--- /dev/null
++++ b/server/internal/auth/keycloak.go
+@@ -0,0 +1,313 @@
++package auth
++
++import (
++	"context"
++	"crypto/rsa"
++	"encoding/base64"
++	"encoding/json"
++	"fmt"
++	"log/slog"
++	"math/big"
++	"net/http"
++	"net/url"
++	"os"
++	"strings"
++	"time"
++
++	"github.com/golang-jwt/jwt/v5"
++)
++
++type KeycloakClaims struct {
++	Email  string
++	Name   string
++	Groups []string
++}
++
++type KeycloakClient struct {
++	issuerURL    string
++	clientID     string
++	clientSecret string
++	redirectURI  string
++	httpClient   *http.Client
++}
++
++type keycloakDiscovery struct {
++	TokenEndpoint string `json:"token_endpoint"`
++	JWKSURI       string `json:"jwks_uri"`
++}
++
++type keycloakTokenResponse struct {
++	AccessToken      string `json:"access_token"`
++	IDToken          string `json:"id_token"`
++	TokenType        string `json:"token_type"`
++	Error            string `json:"error"`
++	ErrorDescription string `json:"error_description"`
++}
++
++type keycloakJWKSet struct {
++	Keys []keycloakJWK `json:"keys"`
++}
++
++type keycloakJWK struct {
++	Kid string `json:"kid"`
++	Kty string `json:"kty"`
++	N   string `json:"n"`
++	E   string `json:"e"`
++}
++
++func keycloakIssuerURL() string {
++	return strings.TrimRight(strings.TrimSpace(os.Getenv("KEYCLOAK_ISSUER_URL")), "/")
++}
++
++func KeycloakEnabled() bool {
++	return keycloakIssuerURL() != "" && strings.TrimSpace(os.Getenv("KEYCLOAK_CLIENT_ID")) != ""
++}
++
++func NewKeycloakClientFromEnv() *KeycloakClient {
++	issuerURL := keycloakIssuerURL()
++	clientID := strings.TrimSpace(os.Getenv("KEYCLOAK_CLIENT_ID"))
++	clientSecret := strings.TrimSpace(os.Getenv("KEYCLOAK_CLIENT_SECRET"))
++	redirectURI := strings.TrimSpace(os.Getenv("KEYCLOAK_REDIRECT_URI"))
++	if issuerURL == "" || clientID == "" {
++		slog.Info("keycloak not configured", "issuer_set", issuerURL != "", "client_id_set", clientID != "")
++		return nil
++	}
++	if clientSecret == "" {
++		slog.Info("keycloak client secret not set, keycloak auth disabled")
++		return nil
++	}
++	return &KeycloakClient{
++		issuerURL:    issuerURL,
++		clientID:     clientID,
++		clientSecret: clientSecret,
++		redirectURI:  redirectURI,
++		httpClient:   &http.Client{Timeout: 15 * time.Second},
++	}
++}
++
++func (c *KeycloakClient) ExchangeCode(ctx context.Context, code, redirectURI string) (*KeycloakClaims, error) {
++	if code == "" {
++		return nil, fmt.Errorf("code is required")
++	}
++	if redirectURI == "" {
++		redirectURI = c.redirectURI
++	}
++	if redirectURI == "" {
++		return nil, fmt.Errorf("redirect URI is required")
++	}
++
++	discovery, err := c.fetchDiscovery(ctx)
++	if err != nil {
++		return nil, err
++	}
++	tokenResp, err := c.exchangeToken(ctx, discovery.TokenEndpoint, code, redirectURI)
++	if err != nil {
++		return nil, err
++	}
++	claims, err := c.verifyIDToken(ctx, discovery.JWKSURI, tokenResp.IDToken)
++	if err != nil {
++		return nil, err
++	}
++	return claims, nil
++}
++
++func (c *KeycloakClient) fetchDiscovery(ctx context.Context) (*keycloakDiscovery, error) {
++	discoveryURL := c.issuerURL + "/.well-known/openid-configuration"
++	req, err := http.NewRequestWithContext(ctx, http.MethodGet, discoveryURL, nil)
++	if err != nil {
++		return nil, fmt.Errorf("create keycloak discovery request: %w", err)
++	}
++	res, err := c.httpClient.Do(req)
++	if err != nil {
++		return nil, fmt.Errorf("keycloak discovery request failed: %w", err)
++	}
++	defer res.Body.Close()
++	if res.StatusCode != http.StatusOK {
++		return nil, fmt.Errorf("keycloak discovery returned status %d", res.StatusCode)
++	}
++
++	var discovery keycloakDiscovery
++	if err := json.NewDecoder(res.Body).Decode(&discovery); err != nil {
++		return nil, fmt.Errorf("decode keycloak discovery: %w", err)
++	}
++	if discovery.TokenEndpoint == "" || discovery.JWKSURI == "" {
++		return nil, fmt.Errorf("keycloak discovery missing required endpoints")
++	}
++	return &discovery, nil
++}
++
++func (c *KeycloakClient) exchangeToken(ctx context.Context, tokenEndpoint, code, redirectURI string) (*keycloakTokenResponse, error) {
++	form := url.Values{
++		"grant_type":    {"authorization_code"},
++		"code":          {code},
++		"client_id":     {c.clientID},
++		"client_secret": {c.clientSecret},
++		"redirect_uri":  {redirectURI},
++	}
++	req, err := http.NewRequestWithContext(ctx, http.MethodPost, tokenEndpoint, strings.NewReader(form.Encode()))
++	if err != nil {
++		return nil, fmt.Errorf("create keycloak token request: %w", err)
++	}
++	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
++	res, err := c.httpClient.Do(req)
++	if err != nil {
++		return nil, fmt.Errorf("keycloak token exchange failed: %w", err)
++	}
++	defer res.Body.Close()
++
++	var tokenResp keycloakTokenResponse
++	if err := json.NewDecoder(res.Body).Decode(&tokenResp); err != nil {
++		return nil, fmt.Errorf("decode keycloak token response: %w", err)
++	}
++	if res.StatusCode != http.StatusOK {
++		if tokenResp.Error != "" {
++			return nil, fmt.Errorf("keycloak token exchange failed: %s (%s)", tokenResp.Error, tokenResp.ErrorDescription)
++		}
++		return nil, fmt.Errorf("keycloak token exchange failed with status %d", res.StatusCode)
++	}
++	if tokenResp.IDToken == "" {
++		return nil, fmt.Errorf("keycloak token response missing id_token")
++	}
++	return &tokenResp, nil
++}
++
++func (c *KeycloakClient) verifyIDToken(ctx context.Context, jwksURI, idToken string) (*KeycloakClaims, error) {
++	keys, err := c.fetchJWKs(ctx, jwksURI)
++	if err != nil {
++		return nil, err
++	}
++
++	token, err := jwt.Parse(idToken, func(t *jwt.Token) (any, error) {
++		kid, _ := t.Header["kid"].(string)
++		if kid == "" {
++			return nil, fmt.Errorf("id token missing kid header")
++		}
++		for _, jwk := range keys.Keys {
++			if jwk.Kid == kid {
++				return parseRSAPublicKey(jwk)
++			}
++		}
++		return nil, fmt.Errorf("no matching key for kid %q", kid)
++	}, jwt.WithValidMethods([]string{"RS256", "RS384", "RS512"}))
++	if err != nil || !token.Valid {
++		return nil, fmt.Errorf("invalid keycloak id token: %w", err)
++	}
++
++	mapClaims, ok := token.Claims.(jwt.MapClaims)
++	if !ok {
++		return nil, fmt.Errorf("invalid keycloak id token claims")
++	}
++
++	iss, err := mapClaims.GetIssuer()
++	if err != nil || strings.TrimRight(iss, "/") != c.issuerURL {
++		return nil, fmt.Errorf("keycloak issuer mismatch")
++	}
++
++	aud, err := mapClaims.GetAudience()
++	if err != nil || !audContains(aud, c.clientID) {
++		return nil, fmt.Errorf("keycloak audience mismatch")
++	}
++
++	email, _ := mapClaims["email"].(string)
++	name, _ := mapClaims["name"].(string)
++	groups := parseGroupsClaim(mapClaims["groups"])
++
++	return &KeycloakClaims{
++		Email:  strings.ToLower(strings.TrimSpace(email)),
++		Name:   strings.TrimSpace(name),
++		Groups: groups,
++	}, nil
++}
++
++func (c *KeycloakClient) fetchJWKs(ctx context.Context, jwksURI string) (*keycloakJWKSet, error) {
++	req, err := http.NewRequestWithContext(ctx, http.MethodGet, jwksURI, nil)
++	if err != nil {
++		return nil, fmt.Errorf("create keycloak jwks request: %w", err)
++	}
++	res, err := c.httpClient.Do(req)
++	if err != nil {
++		return nil, fmt.Errorf("keycloak jwks request failed: %w", err)
++	}
++	defer res.Body.Close()
++	if res.StatusCode != http.StatusOK {
++		return nil, fmt.Errorf("keycloak jwks returned status %d", res.StatusCode)
++	}
++	var keySet keycloakJWKSet
++	if err := json.NewDecoder(res.Body).Decode(&keySet); err != nil {
++		return nil, fmt.Errorf("decode keycloak jwks: %w", err)
++	}
++	if len(keySet.Keys) == 0 {
++		return nil, fmt.Errorf("keycloak jwks has no keys")
++	}
++	return &keySet, nil
++}
++
++func parseRSAPublicKey(jwk keycloakJWK) (*rsa.PublicKey, error) {
++	if jwk.Kty != "RSA" {
++		return nil, fmt.Errorf("unsupported key type %q", jwk.Kty)
++	}
++	nBytes, err := base64.RawURLEncoding.DecodeString(jwk.N)
++	if err != nil {
++		return nil, fmt.Errorf("decode jwk modulus: %w", err)
++	}
++	eBytes, err := base64.RawURLEncoding.DecodeString(jwk.E)
++	if err != nil {
++		return nil, fmt.Errorf("decode jwk exponent: %w", err)
++	}
++	e := 0
++	for _, b := range eBytes {
++		e = (e << 8) | int(b)
++	}
++	if e == 0 {
++		return nil, fmt.Errorf("invalid jwk exponent")
++	}
++	return &rsa.PublicKey{
++		N: new(big.Int).SetBytes(nBytes),
++		E: e,
++	}, nil
++}
++
++func parseGroupsClaim(raw any) []string {
++	switch v := raw.(type) {
++	case []any:
++		out := make([]string, 0, len(v))
++		for _, item := range v {
++			s, ok := item.(string)
++			if !ok {
++				continue
++			}
++			s = strings.TrimSpace(s)
++			if s == "" {
++				continue
++			}
++			out = append(out, s)
++		}
++		return out
++	case []string:
++		out := make([]string, 0, len(v))
++		for _, s := range v {
++			s = strings.TrimSpace(s)
++			if s != "" {
++				out = append(out, s)
++			}
++		}
++		return out
++	case string:
++		s := strings.TrimSpace(v)
++		if s == "" {
++			return nil
++		}
++		return []string{s}
++	default:
++		return nil
++	}
++}
++
++func audContains(aud jwt.ClaimStrings, target string) bool {
++	for _, value := range aud {
++		if value == target {
++			return true
++		}
++	}
++	return false
++}
+diff --git a/server/internal/auth/keycloak_test.go b/server/internal/auth/keycloak_test.go
+new file mode 100644
+index 0000000000000000000000000000000000000000..f7bd404e2b7a7995d9cae4020633901ce1110176
+--- /dev/null
++++ b/server/internal/auth/keycloak_test.go
+@@ -0,0 +1,43 @@
++package auth
++
++import (
++	"testing"
++
++	"github.com/golang-jwt/jwt/v5"
++)
++
++func TestParseGroupsClaim(t *testing.T) {
++	tests := []struct {
++		name string
++		raw  any
++		want []string
++	}{
++		{name: "array any", raw: []any{"team-a", "team-b"}, want: []string{"team-a", "team-b"}},
++		{name: "array strings trims", raw: []string{" team-a ", "team-b"}, want: []string{"team-a", "team-b"}},
++		{name: "single string", raw: "team-a", want: []string{"team-a"}},
++		{name: "empty values ignored", raw: []any{"", "  ", "team-a"}, want: []string{"team-a"}},
++		{name: "unsupported type", raw: 42, want: nil},
++	}
++	for _, tt := range tests {
++		t.Run(tt.name, func(t *testing.T) {
++			got := parseGroupsClaim(tt.raw)
++			if len(got) != len(tt.want) {
++				t.Fatalf("len(parseGroupsClaim(%v)) = %d, want %d", tt.raw, len(got), len(tt.want))
++			}
++			for i := range tt.want {
++				if got[i] != tt.want[i] {
++					t.Fatalf("parseGroupsClaim[%d] = %q, want %q", i, got[i], tt.want[i])
++				}
++			}
++		})
++	}
++}
++
++func TestAudContains(t *testing.T) {
++	if !audContains(jwt.ClaimStrings{"a", "b"}, "b") {
++		t.Fatal("audContains should return true when audience is present")
++	}
++	if audContains(jwt.ClaimStrings{"a", "b"}, "c") {
++		t.Fatal("audContains should return false when audience is absent")
++	}
++}
+diff --git a/server/internal/daemon/daemon.go b/server/internal/daemon/daemon.go
+index 54f43137e53bed8fdffcda15eeb523663db18dd0..abfcd8dea5235bf436eb344f9ca2cc39c4f94871 100644
+--- a/server/internal/daemon/daemon.go
++++ b/server/internal/daemon/daemon.go
+@@ -11,11 +11,11 @@ import (
+ 	"sync/atomic"
+ 	"time"
+ 
+-	"github.com/multica-ai/multica/server/internal/cli"
+-	"github.com/multica-ai/multica/server/internal/daemon/execenv"
+-	"github.com/multica-ai/multica/server/internal/daemon/repocache"
+-	"github.com/multica-ai/multica/server/internal/daemon/usage"
+-	"github.com/multica-ai/multica/server/pkg/agent"
++	"github.com/SparkAIUR/multica/server/internal/cli"
++	"github.com/SparkAIUR/multica/server/internal/daemon/execenv"
++	"github.com/SparkAIUR/multica/server/internal/daemon/repocache"
++	"github.com/SparkAIUR/multica/server/internal/daemon/usage"
++	"github.com/SparkAIUR/multica/server/pkg/agent"
+ )
+ 
+ // workspaceState tracks registered runtimes for a single workspace.
+diff --git a/server/internal/daemon/daemon_test.go b/server/internal/daemon/daemon_test.go
+index 6a416692b863f15383d1cef938d0403ad7e67560..1f926135cb829c1c756f503e92a30d3b928d61a7 100644
+--- a/server/internal/daemon/daemon_test.go
++++ b/server/internal/daemon/daemon_test.go
+@@ -9,7 +9,7 @@ import (
+ 	"sync/atomic"
+ 	"testing"
+ 
+-	"github.com/multica-ai/multica/server/pkg/agent"
++	"github.com/SparkAIUR/multica/server/pkg/agent"
+ )
+ 
+ func TestNormalizeServerBaseURL(t *testing.T) {
+diff --git a/server/internal/daemon/gc.go b/server/internal/daemon/gc.go
+index 0b9ec0a7ae696539406f7af738c8d2889c04a2b2..e13b68f0adbc523d831d0149e3455d2918b58086 100644
+--- a/server/internal/daemon/gc.go
++++ b/server/internal/daemon/gc.go
+@@ -10,7 +10,7 @@ import (
+ 	"strings"
+ 	"time"
+ 
+-	"github.com/multica-ai/multica/server/internal/daemon/execenv"
++	"github.com/SparkAIUR/multica/server/internal/daemon/execenv"
+ )
+ 
+ // gcLoop periodically scans local workspace directories and removes those
+diff --git a/server/internal/daemon/gc_test.go b/server/internal/daemon/gc_test.go
+index dd9c8ea0599554de9f96ec69b760d959941fb6f1..f4376e1a42e12c81ca7e390ab835b6d918ca28df 100644
+--- a/server/internal/daemon/gc_test.go
++++ b/server/internal/daemon/gc_test.go
+@@ -12,7 +12,7 @@ import (
+ 	"testing"
+ 	"time"
+ 
+-	"github.com/multica-ai/multica/server/internal/daemon/execenv"
++	"github.com/SparkAIUR/multica/server/internal/daemon/execenv"
+ )
+ 
+ // newGCTestDaemon creates a minimal Daemon for GC testing with a mock HTTP server.
+diff --git a/server/internal/daemon/health.go b/server/internal/daemon/health.go
+index 4f06d6e78fd1338140ddb7410d3a079a30a77367..bdad833252de31c743b9d2696df0c48ebfff8887 100644
+--- a/server/internal/daemon/health.go
++++ b/server/internal/daemon/health.go
+@@ -9,7 +9,7 @@ import (
+ 	"os"
+ 	"time"
+ 
+-	"github.com/multica-ai/multica/server/internal/daemon/repocache"
++	"github.com/SparkAIUR/multica/server/internal/daemon/repocache"
+ )
+ 
+ // HealthResponse is returned by the daemon's local health endpoint.
+diff --git a/server/internal/handler/activity.go b/server/internal/handler/activity.go
+index 4801ef1a6919a9b5b801b634e15013cf2963d95b..ccdb657cbe9382aa9dcc334d66ec77c09bb1e70b 100644
+--- a/server/internal/handler/activity.go
++++ b/server/internal/handler/activity.go
+@@ -5,9 +5,9 @@ import (
+ 	"net/http"
+ 	"sort"
+ 
++	db "github.com/SparkAIUR/multica/server/pkg/db/generated"
+ 	"github.com/go-chi/chi/v5"
+ 	"github.com/jackc/pgx/v5/pgtype"
+-	db "github.com/multica-ai/multica/server/pkg/db/generated"
+ )
+ 
+ // TimelineEntry represents a single entry in the issue timeline, which can be
+diff --git a/server/internal/handler/activity_test.go b/server/internal/handler/activity_test.go
+index f20911818a5184f030f209147fe30321e2747fb5..aca9047764f2485dad78d8b582b8158402fb95f8 100644
+--- a/server/internal/handler/activity_test.go
++++ b/server/internal/handler/activity_test.go
+@@ -7,7 +7,7 @@ import (
+ 	"net/http/httptest"
+ 	"testing"
+ 
+-	db "github.com/multica-ai/multica/server/pkg/db/generated"
++	db "github.com/SparkAIUR/multica/server/pkg/db/generated"
+ )
+ 
+ func TestListTimeline_MergedAndSorted(t *testing.T) {
+diff --git a/server/internal/handler/agent.go b/server/internal/handler/agent.go
+index d44b80589a7b38cf13eee656ccc0d83394a814e7..a1b22c20cb09c112287035e2201028e646b9d986 100644
+--- a/server/internal/handler/agent.go
++++ b/server/internal/handler/agent.go
+@@ -5,12 +5,12 @@ import (
+ 	"log/slog"
+ 	"net/http"
+ 
++	"github.com/SparkAIUR/multica/server/internal/logger"
++	"github.com/SparkAIUR/multica/server/internal/service"
++	db "github.com/SparkAIUR/multica/server/pkg/db/generated"
++	"github.com/SparkAIUR/multica/server/pkg/protocol"
+ 	"github.com/go-chi/chi/v5"
+ 	"github.com/jackc/pgx/v5/pgtype"
+-	"github.com/multica-ai/multica/server/internal/logger"
+-	"github.com/multica-ai/multica/server/internal/service"
+-	db "github.com/multica-ai/multica/server/pkg/db/generated"
+-	"github.com/multica-ai/multica/server/pkg/protocol"
+ )
+ 
+ type AgentResponse struct {
+@@ -73,23 +73,23 @@ type RepoData struct {
+ }
+ 
+ type AgentTaskResponse struct {
+-	ID             string         `json:"id"`
+-	AgentID        string         `json:"agent_id"`
+-	RuntimeID      string         `json:"runtime_id"`
+-	IssueID        string         `json:"issue_id"`
+-	WorkspaceID    string         `json:"workspace_id"`
+-	Status         string         `json:"status"`
+-	Priority       int32          `json:"priority"`
+-	DispatchedAt   *string        `json:"dispatched_at"`
+-	StartedAt      *string        `json:"started_at"`
+-	CompletedAt    *string        `json:"completed_at"`
+-	Result         any            `json:"result"`
+-	Error          *string        `json:"error"`
+-	Agent          *TaskAgentData `json:"agent,omitempty"`
+-	Repos          []RepoData     `json:"repos,omitempty"`
+-	CreatedAt      string         `json:"created_at"`
+-	PriorSessionID   string         `json:"prior_session_id,omitempty"`    // session ID from a previous task on same issue
+-	PriorWorkDir     string         `json:"prior_work_dir,omitempty"`     // work_dir from a previous task on same issue
++	ID                    string         `json:"id"`
++	AgentID               string         `json:"agent_id"`
++	RuntimeID             string         `json:"runtime_id"`
++	IssueID               string         `json:"issue_id"`
++	WorkspaceID           string         `json:"workspace_id"`
++	Status                string         `json:"status"`
++	Priority              int32          `json:"priority"`
++	DispatchedAt          *string        `json:"dispatched_at"`
++	StartedAt             *string        `json:"started_at"`
++	CompletedAt           *string        `json:"completed_at"`
++	Result                any            `json:"result"`
++	Error                 *string        `json:"error"`
++	Agent                 *TaskAgentData `json:"agent,omitempty"`
++	Repos                 []RepoData     `json:"repos,omitempty"`
++	CreatedAt             string         `json:"created_at"`
++	PriorSessionID        string         `json:"prior_session_id,omitempty"`        // session ID from a previous task on same issue
++	PriorWorkDir          string         `json:"prior_work_dir,omitempty"`          // work_dir from a previous task on same issue
+ 	TriggerCommentID      *string        `json:"trigger_comment_id,omitempty"`      // comment that triggered this task
+ 	TriggerCommentContent string         `json:"trigger_comment_content,omitempty"` // content of the triggering comment
+ 	ChatSessionID         string         `json:"chat_session_id,omitempty"`         // non-empty for chat tasks
+@@ -111,16 +111,16 @@ func taskToResponse(t db.AgentTaskQueue) AgentTaskResponse {
+ 		json.Unmarshal(t.Result, &result)
+ 	}
+ 	return AgentTaskResponse{
+-		ID:           uuidToString(t.ID),
+-		AgentID:      uuidToString(t.AgentID),
+-		RuntimeID:    uuidToString(t.RuntimeID),
+-		IssueID:      uuidToString(t.IssueID),
+-		Status:       t.Status,
+-		Priority:     t.Priority,
+-		DispatchedAt: timestampToPtr(t.DispatchedAt),
+-		StartedAt:    timestampToPtr(t.StartedAt),
+-		CompletedAt:  timestampToPtr(t.CompletedAt),
+-		Result:       result,
++		ID:               uuidToString(t.ID),
++		AgentID:          uuidToString(t.AgentID),
++		RuntimeID:        uuidToString(t.RuntimeID),
++		IssueID:          uuidToString(t.IssueID),
++		Status:           t.Status,
++		Priority:         t.Priority,
++		DispatchedAt:     timestampToPtr(t.DispatchedAt),
++		StartedAt:        timestampToPtr(t.StartedAt),
++		CompletedAt:      timestampToPtr(t.CompletedAt),
++		Result:           result,
+ 		Error:            textToPtr(t.Error),
+ 		CreatedAt:        timestampToString(t.CreatedAt),
+ 		TriggerCommentID: uuidToPtr(t.TriggerCommentID),
+@@ -280,8 +280,6 @@ func (h *Handler) CreateAgent(w http.ResponseWriter, r *http.Request) {
+ 	writeJSON(w, http.StatusCreated, resp)
+ }
+ 
+-
+-
+ type UpdateAgentRequest struct {
+ 	Name               *string `json:"name"`
+ 	Description        *string `json:"description"`
+diff --git a/server/internal/handler/auth.go b/server/internal/handler/auth.go
+index caa4217723ffb40b76c499600caea08ccde6f78b..603f0e15c56e8cdfce4bd1491f5376cec3e399dc 100644
+--- a/server/internal/handler/auth.go
++++ b/server/internal/handler/auth.go
+@@ -15,11 +15,11 @@ import (
+ 	"strings"
+ 	"time"
+ 
++	"github.com/SparkAIUR/multica/server/internal/auth"
++	"github.com/SparkAIUR/multica/server/internal/logger"
++	db "github.com/SparkAIUR/multica/server/pkg/db/generated"
+ 	"github.com/golang-jwt/jwt/v5"
+ 	"github.com/jackc/pgx/v5/pgtype"
+-	"github.com/multica-ai/multica/server/internal/auth"
+-	"github.com/multica-ai/multica/server/internal/logger"
+-	db "github.com/multica-ai/multica/server/pkg/db/generated"
+ )
+ 
+ type UserResponse struct {
+diff --git a/server/internal/handler/auth_keycloak.go b/server/internal/handler/auth_keycloak.go
+new file mode 100644
+index 0000000000000000000000000000000000000000..2de01ea67af3523ae17ba02835130cdb90afba4f
+--- /dev/null
++++ b/server/internal/handler/auth_keycloak.go
+@@ -0,0 +1,103 @@
++package handler
++
++import (
++	"encoding/json"
++	"log/slog"
++	"net/http"
++	"os"
++	"strings"
++	"time"
++
++	"github.com/SparkAIUR/multica/server/internal/auth"
++	"github.com/SparkAIUR/multica/server/internal/logger"
++	db "github.com/SparkAIUR/multica/server/pkg/db/generated"
++)
++
++type KeycloakLoginRequest struct {
++	Code        string `json:"code"`
++	RedirectURI string `json:"redirect_uri"`
++}
++
++func (h *Handler) AuthMethodDisabled(w http.ResponseWriter, _ *http.Request) {
++	writeError(w, http.StatusNotFound, "authentication method disabled")
++}
++
++func (h *Handler) KeycloakLogin(w http.ResponseWriter, r *http.Request) {
++	var req KeycloakLoginRequest
++	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
++		writeError(w, http.StatusBadRequest, "invalid request body")
++		return
++	}
++	if strings.TrimSpace(req.Code) == "" {
++		writeError(w, http.StatusBadRequest, "code is required")
++		return
++	}
++
++	kc := auth.NewKeycloakClientFromEnv()
++	if kc == nil {
++		writeError(w, http.StatusServiceUnavailable, "Keycloak login is not configured")
++		return
++	}
++
++	redirectURI := strings.TrimSpace(req.RedirectURI)
++	if redirectURI == "" {
++		redirectURI = strings.TrimSpace(os.Getenv("KEYCLOAK_REDIRECT_URI"))
++	}
++
++	claims, err := kc.ExchangeCode(r.Context(), strings.TrimSpace(req.Code), redirectURI)
++	if err != nil {
++		slog.Warn("keycloak login failed", append(logger.RequestAttrs(r), "error", err)...)
++		writeError(w, http.StatusUnauthorized, "failed to authenticate with Keycloak")
++		return
++	}
++	if claims.Email == "" {
++		writeError(w, http.StatusBadRequest, "Keycloak account has no email")
++		return
++	}
++
++	allowedGroups := auth.AllowedKeycloakGroupsFromEnv()
++	if !auth.IsAnyGroupAllowed(claims.Groups, allowedGroups) {
++		slog.Info("keycloak login denied by group policy", append(logger.RequestAttrs(r), "email", claims.Email, "groups", claims.Groups)...)
++		writeError(w, http.StatusForbidden, "access denied by group policy")
++		return
++	}
++
++	user, err := h.findOrCreateUser(r.Context(), claims.Email)
++	if err != nil {
++		writeError(w, http.StatusInternalServerError, "failed to create user")
++		return
++	}
++
++	// If the account was auto-created with email-prefix name, prefer Keycloak profile name.
++	if claims.Name != "" && user.Name == strings.Split(claims.Email, "@")[0] {
++		updated, updateErr := h.Queries.UpdateUser(r.Context(), db.UpdateUserParams{
++			ID:   user.ID,
++			Name: claims.Name,
++		})
++		if updateErr == nil {
++			user = updated
++		}
++	}
++
++	tokenString, err := h.issueJWT(user)
++	if err != nil {
++		slog.Warn("keycloak login failed to issue jwt", append(logger.RequestAttrs(r), "error", err, "email", claims.Email)...)
++		writeError(w, http.StatusInternalServerError, "failed to generate token")
++		return
++	}
++
++	if err := auth.SetAuthCookies(w, tokenString); err != nil {
++		slog.Warn("failed to set auth cookies", "error", err)
++	}
++	if h.CFSigner != nil {
++		for _, cookie := range h.CFSigner.SignedCookies(time.Now().Add(72 * time.Hour)) {
++			http.SetCookie(w, cookie)
++		}
++	}
++
++	slog.Info("user logged in via keycloak", append(logger.RequestAttrs(r), "user_id", uuidToString(user.ID), "email", user.Email)...)
++	writeJSON(w, http.StatusOK, LoginResponse{
++		Token: tokenString,
++		User:  userToResponse(user),
++	})
++}
+diff --git a/server/internal/handler/auth_keycloak_test.go b/server/internal/handler/auth_keycloak_test.go
+new file mode 100644
+index 0000000000000000000000000000000000000000..1089f8a3f70ada9dd3fa8e0039c2b96b9a4b8752
+--- /dev/null
++++ b/server/internal/handler/auth_keycloak_test.go
+@@ -0,0 +1,158 @@
++package handler
++
++import (
++	"bytes"
++	"context"
++	"crypto/rand"
++	"crypto/rsa"
++	"encoding/base64"
++	"encoding/json"
++	"math/big"
++	"net/http"
++	"net/http/httptest"
++	"testing"
++	"time"
++
++	"github.com/golang-jwt/jwt/v5"
++)
++
++func TestKeycloakLogin_GroupPolicy(t *testing.T) {
++	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
++	if err != nil {
++		t.Fatalf("generate rsa key: %v", err)
++	}
++	keyID := "test-key-1"
++	clientID := "multica-web"
++	clientSecret := "test-secret"
++	redirectURI := "http://localhost:3000/auth/callback"
++	issuer := ""
++
++	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
++		switch r.URL.Path {
++		case "/.well-known/openid-configuration":
++			_ = json.NewEncoder(w).Encode(map[string]string{
++				"token_endpoint": issuer + "/protocol/openid-connect/token",
++				"jwks_uri":       issuer + "/protocol/openid-connect/certs",
++			})
++		case "/protocol/openid-connect/certs":
++			n := base64.RawURLEncoding.EncodeToString(privateKey.N.Bytes())
++			e := base64.RawURLEncoding.EncodeToString(big.NewInt(int64(privateKey.E)).Bytes())
++			_ = json.NewEncoder(w).Encode(map[string]any{
++				"keys": []map[string]string{{
++					"kid": keyID,
++					"kty": "RSA",
++					"n":   n,
++					"e":   e,
++				}},
++			})
++		case "/protocol/openid-connect/token":
++			_ = r.ParseForm()
++			if r.FormValue("client_id") != clientID || r.FormValue("client_secret") != clientSecret {
++				w.WriteHeader(http.StatusUnauthorized)
++				_ = json.NewEncoder(w).Encode(map[string]string{"error": "invalid_client"})
++				return
++			}
++			code := r.FormValue("code")
++			var email, name string
++			var groups any
++			switch code {
++			case "allowed":
++				email = "keycloak-allowed@multica.ai"
++				name = "Allowed User"
++				groups = []string{"team-a"}
++			case "denied":
++				email = "keycloak-denied@multica.ai"
++				name = "Denied User"
++				groups = []string{"team-x"}
++			case "nogroups":
++				email = "keycloak-nogroups@multica.ai"
++				name = "No Groups User"
++			default:
++				w.WriteHeader(http.StatusBadRequest)
++				_ = json.NewEncoder(w).Encode(map[string]string{"error": "invalid_grant"})
++				return
++			}
++
++			claims := jwt.MapClaims{
++				"iss":   issuer,
++				"aud":   []string{clientID},
++				"exp":   time.Now().Add(time.Hour).Unix(),
++				"iat":   time.Now().Unix(),
++				"email": email,
++				"name":  name,
++			}
++			if groups != nil {
++				claims["groups"] = groups
++			}
++
++			token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
++			token.Header["kid"] = keyID
++			idToken, signErr := token.SignedString(privateKey)
++			if signErr != nil {
++				w.WriteHeader(http.StatusInternalServerError)
++				_ = json.NewEncoder(w).Encode(map[string]string{"error": signErr.Error()})
++				return
++			}
++			_ = json.NewEncoder(w).Encode(map[string]string{
++				"access_token": "access",
++				"id_token":     idToken,
++				"token_type":   "Bearer",
++			})
++		default:
++			w.WriteHeader(http.StatusNotFound)
++		}
++	}))
++	defer server.Close()
++	issuer = server.URL
++
++	t.Setenv("KEYCLOAK_ISSUER_URL", issuer)
++	t.Setenv("KEYCLOAK_CLIENT_ID", clientID)
++	t.Setenv("KEYCLOAK_CLIENT_SECRET", clientSecret)
++	t.Setenv("KEYCLOAK_REDIRECT_URI", redirectURI)
++
++	tests := []struct {
++		name          string
++		code          string
++		allowedGroups string
++		wantStatus    int
++	}{
++		{name: "allowed group", code: "allowed", allowedGroups: "team-a,team-b", wantStatus: http.StatusOK},
++		{name: "denied group", code: "denied", allowedGroups: "team-a,team-b", wantStatus: http.StatusForbidden},
++		{name: "empty allowed groups allows login", code: "denied", allowedGroups: "", wantStatus: http.StatusOK},
++		{name: "missing groups denied when policy configured", code: "nogroups", allowedGroups: "team-a", wantStatus: http.StatusForbidden},
++	}
++
++	for _, tt := range tests {
++		t.Run(tt.name, func(t *testing.T) {
++			t.Setenv("KEYCLOAK_ALLOWED_GROUPS", tt.allowedGroups)
++
++			body := map[string]string{
++				"code":         tt.code,
++				"redirect_uri": redirectURI,
++			}
++			var buf bytes.Buffer
++			_ = json.NewEncoder(&buf).Encode(body)
++			req := httptest.NewRequest(http.MethodPost, "/auth/keycloak", &buf)
++			req.Header.Set("Content-Type", "application/json")
++			w := httptest.NewRecorder()
++
++			testHandler.KeycloakLogin(w, req)
++
++			if w.Code != tt.wantStatus {
++				t.Fatalf("KeycloakLogin: expected %d, got %d body=%s", tt.wantStatus, w.Code, w.Body.String())
++			}
++
++			// Clean up users created by successful test cases.
++			if w.Code == http.StatusOK {
++				var resp LoginResponse
++				if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
++					t.Fatalf("decode login response: %v", err)
++				}
++				if resp.User.Email == "" || resp.Token == "" {
++					t.Fatalf("expected token + user email in response")
++				}
++				_, _ = testPool.Exec(context.Background(), `DELETE FROM "user" WHERE email = $1`, resp.User.Email)
++			}
++		})
++	}
++}
+diff --git a/server/internal/handler/chat.go b/server/internal/handler/chat.go
+index 9cf4b00f2b6b05359b09016e1353a6da3df39fdf..d906612ef031d5d0b50cffe49e1da1ef2f6c4ffe 100644
+--- a/server/internal/handler/chat.go
++++ b/server/internal/handler/chat.go
+@@ -5,9 +5,9 @@ import (
+ 	"log/slog"
+ 	"net/http"
+ 
++	db "github.com/SparkAIUR/multica/server/pkg/db/generated"
++	"github.com/SparkAIUR/multica/server/pkg/protocol"
+ 	"github.com/go-chi/chi/v5"
+-	db "github.com/multica-ai/multica/server/pkg/db/generated"
+-	"github.com/multica-ai/multica/server/pkg/protocol"
+ )
+ 
+ // ---------------------------------------------------------------------------
+@@ -333,14 +333,14 @@ func (h *Handler) CancelTaskByUser(w http.ResponseWriter, r *http.Request) {
+ // ---------------------------------------------------------------------------
+ 
+ type ChatSessionResponse struct {
+-	ID          string  `json:"id"`
+-	WorkspaceID string  `json:"workspace_id"`
+-	AgentID     string  `json:"agent_id"`
+-	CreatorID   string  `json:"creator_id"`
+-	Title       string  `json:"title"`
+-	Status      string  `json:"status"`
+-	CreatedAt   string  `json:"created_at"`
+-	UpdatedAt   string  `json:"updated_at"`
++	ID          string `json:"id"`
++	WorkspaceID string `json:"workspace_id"`
++	AgentID     string `json:"agent_id"`
++	CreatorID   string `json:"creator_id"`
++	Title       string `json:"title"`
++	Status      string `json:"status"`
++	CreatedAt   string `json:"created_at"`
++	UpdatedAt   string `json:"updated_at"`
+ }
+ 
+ type ChatMessageResponse struct {
+diff --git a/server/internal/handler/comment.go b/server/internal/handler/comment.go
+index d4bbdb20ee3368d8a77e1620ba44b6864390711e..c6ab44e4b070aaea0bb0bfa68dba078ceaae6412 100644
+--- a/server/internal/handler/comment.go
++++ b/server/internal/handler/comment.go
+@@ -8,14 +8,14 @@ import (
+ 	"strconv"
+ 	"time"
+ 
++	"github.com/SparkAIUR/multica/server/internal/logger"
++	"github.com/SparkAIUR/multica/server/internal/mention"
++	"github.com/SparkAIUR/multica/server/internal/sanitize"
++	"github.com/SparkAIUR/multica/server/internal/util"
++	db "github.com/SparkAIUR/multica/server/pkg/db/generated"
++	"github.com/SparkAIUR/multica/server/pkg/protocol"
+ 	"github.com/go-chi/chi/v5"
+ 	"github.com/jackc/pgx/v5/pgtype"
+-	"github.com/multica-ai/multica/server/internal/logger"
+-	"github.com/multica-ai/multica/server/internal/mention"
+-	"github.com/multica-ai/multica/server/internal/sanitize"
+-	"github.com/multica-ai/multica/server/internal/util"
+-	db "github.com/multica-ai/multica/server/pkg/db/generated"
+-	"github.com/multica-ai/multica/server/pkg/protocol"
+ )
+ 
+ type CommentResponse struct {
+diff --git a/server/internal/handler/daemon.go b/server/internal/handler/daemon.go
+index 4568707426a8792d8e0493e900d5b1b034f9dade..5006493367bfddbe092b6c96d444330d2fc8822d 100644
+--- a/server/internal/handler/daemon.go
++++ b/server/internal/handler/daemon.go
+@@ -8,12 +8,12 @@ import (
+ 	"strconv"
+ 	"strings"
+ 
++	"github.com/SparkAIUR/multica/server/internal/middleware"
++	db "github.com/SparkAIUR/multica/server/pkg/db/generated"
++	"github.com/SparkAIUR/multica/server/pkg/protocol"
++	"github.com/SparkAIUR/multica/server/pkg/redact"
+ 	"github.com/go-chi/chi/v5"
+ 	"github.com/jackc/pgx/v5/pgtype"
+-	"github.com/multica-ai/multica/server/internal/middleware"
+-	db "github.com/multica-ai/multica/server/pkg/db/generated"
+-	"github.com/multica-ai/multica/server/pkg/protocol"
+-	"github.com/multica-ai/multica/server/pkg/redact"
+ )
+ 
+ // ---------------------------------------------------------------------------
+diff --git a/server/internal/handler/daemon_test.go b/server/internal/handler/daemon_test.go
+index eb700a99f98211e8433a0c2b71c49e887974ed6b..a6041d2c6b956527ba5b0bf3c4e15927300cdeb2 100644
+--- a/server/internal/handler/daemon_test.go
++++ b/server/internal/handler/daemon_test.go
+@@ -8,8 +8,8 @@ import (
+ 	"net/http/httptest"
+ 	"testing"
+ 
++	"github.com/SparkAIUR/multica/server/internal/middleware"
+ 	"github.com/go-chi/chi/v5"
+-	"github.com/multica-ai/multica/server/internal/middleware"
+ )
+ 
+ // newDaemonTokenRequest creates an HTTP request with daemon token context set
+diff --git a/server/internal/handler/file.go b/server/internal/handler/file.go
+index 0681ede28cf15b69b4b6b800b6c4921ad81bb624..7304868cd5af96e6733978403e7f5c2a90eedd93 100644
+--- a/server/internal/handler/file.go
++++ b/server/internal/handler/file.go
+@@ -10,10 +10,11 @@ import (
+ 	"strings"
+ 	"time"
+ 
++	"github.com/SparkAIUR/multica/server/internal/storage"
++	db "github.com/SparkAIUR/multica/server/pkg/db/generated"
+ 	"github.com/go-chi/chi/v5"
+ 	"github.com/google/uuid"
+ 	"github.com/jackc/pgx/v5/pgtype"
+-	db "github.com/multica-ai/multica/server/pkg/db/generated"
+ )
+ 
+ // extContentTypes overrides http.DetectContentType for extensions it gets wrong.
+@@ -63,6 +64,10 @@ func (h *Handler) attachmentToResponse(a db.Attachment) AttachmentResponse {
+ 	}
+ 	if h.CFSigner != nil {
+ 		resp.DownloadURL = h.CFSigner.SignedURL(a.Url, time.Now().Add(30*time.Minute))
++	} else if signer, ok := h.Storage.(storage.DownloadURLSigner); ok {
++		if signed, err := signer.SignedDownloadURL(context.Background(), a.Url, 30*time.Minute); err == nil && signed != "" {
++			resp.DownloadURL = signed
++		}
+ 	}
+ 	if a.IssueID.Valid {
+ 		s := uuidToString(a.IssueID)
+diff --git a/server/internal/handler/handler.go b/server/internal/handler/handler.go
+index b000dc9f389027c179ea4f25a3c47cef102e7a2e..6bbb2980e8597397fc978dc38ff2f57f18463b08 100644
+--- a/server/internal/handler/handler.go
++++ b/server/internal/handler/handler.go
+@@ -7,18 +7,18 @@ import (
+ 	"log/slog"
+ 	"net/http"
+ 
++	"github.com/SparkAIUR/multica/server/internal/auth"
++	"github.com/SparkAIUR/multica/server/internal/events"
++	"github.com/SparkAIUR/multica/server/internal/middleware"
++	"github.com/SparkAIUR/multica/server/internal/realtime"
++	"github.com/SparkAIUR/multica/server/internal/service"
++	"github.com/SparkAIUR/multica/server/internal/storage"
++	"github.com/SparkAIUR/multica/server/internal/util"
++	db "github.com/SparkAIUR/multica/server/pkg/db/generated"
+ 	"github.com/go-chi/chi/v5"
+ 	"github.com/jackc/pgx/v5"
+ 	"github.com/jackc/pgx/v5/pgconn"
+ 	"github.com/jackc/pgx/v5/pgtype"
+-	"github.com/multica-ai/multica/server/internal/auth"
+-	"github.com/multica-ai/multica/server/internal/events"
+-	"github.com/multica-ai/multica/server/internal/middleware"
+-	"github.com/multica-ai/multica/server/internal/realtime"
+-	"github.com/multica-ai/multica/server/internal/service"
+-	"github.com/multica-ai/multica/server/internal/storage"
+-	"github.com/multica-ai/multica/server/internal/util"
+-	db "github.com/multica-ai/multica/server/pkg/db/generated"
+ )
+ 
+ type txStarter interface {
+diff --git a/server/internal/handler/handler_test.go b/server/internal/handler/handler_test.go
+index 7331a9f8d60f4af8badba595759abc5ca62e5cf5..ca3e50e73f687f35b07018c006704d8c9470cdf6 100644
+--- a/server/internal/handler/handler_test.go
++++ b/server/internal/handler/handler_test.go
+@@ -11,12 +11,12 @@ import (
+ 	"strings"
+ 	"testing"
+ 
++	"github.com/SparkAIUR/multica/server/internal/events"
++	"github.com/SparkAIUR/multica/server/internal/realtime"
++	"github.com/SparkAIUR/multica/server/internal/service"
++	db "github.com/SparkAIUR/multica/server/pkg/db/generated"
+ 	"github.com/go-chi/chi/v5"
+ 	"github.com/jackc/pgx/v5/pgxpool"
+-	"github.com/multica-ai/multica/server/internal/events"
+-	"github.com/multica-ai/multica/server/internal/realtime"
+-	"github.com/multica-ai/multica/server/internal/service"
+-	db "github.com/multica-ai/multica/server/pkg/db/generated"
+ )
+ 
+ var testHandler *Handler
+diff --git a/server/internal/handler/inbox.go b/server/internal/handler/inbox.go
+index 3dc0d20ac3bc5526bfc4429554fa33e004c2a1bc..728e4b0ced526107bda473d160501daa2eb5bb8b 100644
+--- a/server/internal/handler/inbox.go
++++ b/server/internal/handler/inbox.go
+@@ -6,11 +6,11 @@ import (
+ 	"log/slog"
+ 	"net/http"
+ 
++	"github.com/SparkAIUR/multica/server/internal/logger"
++	db "github.com/SparkAIUR/multica/server/pkg/db/generated"
++	"github.com/SparkAIUR/multica/server/pkg/protocol"
+ 	"github.com/go-chi/chi/v5"
+ 	"github.com/jackc/pgx/v5/pgtype"
+-	"github.com/multica-ai/multica/server/internal/logger"
+-	db "github.com/multica-ai/multica/server/pkg/db/generated"
+-	"github.com/multica-ai/multica/server/pkg/protocol"
+ )
+ 
+ type InboxItemResponse struct {
+diff --git a/server/internal/handler/issue.go b/server/internal/handler/issue.go
+index 7a7049715ccecf185d68328b129fe816fc5a27e7..18cc888e5c901ed8d0c61cbcdf4ce5bd3637e860 100644
+--- a/server/internal/handler/issue.go
++++ b/server/internal/handler/issue.go
+@@ -13,35 +13,35 @@ import (
+ 	"time"
+ 	"unicode"
+ 
++	"github.com/SparkAIUR/multica/server/internal/logger"
++	db "github.com/SparkAIUR/multica/server/pkg/db/generated"
++	"github.com/SparkAIUR/multica/server/pkg/protocol"
+ 	"github.com/go-chi/chi/v5"
+ 	"github.com/jackc/pgx/v5/pgtype"
+-	"github.com/multica-ai/multica/server/internal/logger"
+-	db "github.com/multica-ai/multica/server/pkg/db/generated"
+-	"github.com/multica-ai/multica/server/pkg/protocol"
+ )
+ 
+ // IssueResponse is the JSON response for an issue.
+ type IssueResponse struct {
+-	ID                 string                  `json:"id"`
+-	WorkspaceID        string                  `json:"workspace_id"`
+-	Number             int32                   `json:"number"`
+-	Identifier         string                  `json:"identifier"`
+-	Title              string                  `json:"title"`
+-	Description        *string                 `json:"description"`
+-	Status             string                  `json:"status"`
+-	Priority           string                  `json:"priority"`
+-	AssigneeType       *string                 `json:"assignee_type"`
+-	AssigneeID         *string                 `json:"assignee_id"`
+-	CreatorType        string                  `json:"creator_type"`
+-	CreatorID          string                  `json:"creator_id"`
+-	ParentIssueID      *string                 `json:"parent_issue_id"`
+-	ProjectID          *string                 `json:"project_id"`
+-	Position           float64                 `json:"position"`
+-	DueDate            *string                 `json:"due_date"`
+-	CreatedAt          string                  `json:"created_at"`
+-	UpdatedAt          string                  `json:"updated_at"`
+-	Reactions          []IssueReactionResponse `json:"reactions,omitempty"`
+-	Attachments        []AttachmentResponse    `json:"attachments,omitempty"`
++	ID            string                  `json:"id"`
++	WorkspaceID   string                  `json:"workspace_id"`
++	Number        int32                   `json:"number"`
++	Identifier    string                  `json:"identifier"`
++	Title         string                  `json:"title"`
++	Description   *string                 `json:"description"`
++	Status        string                  `json:"status"`
++	Priority      string                  `json:"priority"`
++	AssigneeType  *string                 `json:"assignee_type"`
++	AssigneeID    *string                 `json:"assignee_id"`
++	CreatorType   string                  `json:"creator_type"`
++	CreatorID     string                  `json:"creator_id"`
++	ParentIssueID *string                 `json:"parent_issue_id"`
++	ProjectID     *string                 `json:"project_id"`
++	Position      float64                 `json:"position"`
++	DueDate       *string                 `json:"due_date"`
++	CreatedAt     string                  `json:"created_at"`
++	UpdatedAt     string                  `json:"updated_at"`
++	Reactions     []IssueReactionResponse `json:"reactions,omitempty"`
++	Attachments   []AttachmentResponse    `json:"attachments,omitempty"`
+ }
+ 
+ func issueToResponse(i db.Issue, issuePrefix string) IssueResponse {
+@@ -242,7 +242,7 @@ func buildSearchQuery(phrase string, terms []string, queryNum int, hasNum bool,
+ 	}
+ 
+ 	escapedPhrase := escapeLike(phrase)
+-	phraseParam := nextArg(escapedPhrase)               // $1
++	phraseParam := nextArg(escapedPhrase) // $1
+ 	phraseContains := "'%' || " + phraseParam + " || '%'"
+ 	phraseStartsWith := phraseParam + " || '%'"
+ 
+@@ -756,16 +756,16 @@ func (h *Handler) ChildIssueProgress(w http.ResponseWriter, r *http.Request) {
+ }
+ 
+ type CreateIssueRequest struct {
+-	Title              string   `json:"title"`
+-	Description        *string  `json:"description"`
+-	Status             string   `json:"status"`
+-	Priority           string   `json:"priority"`
+-	AssigneeType       *string  `json:"assignee_type"`
+-	AssigneeID         *string  `json:"assignee_id"`
+-	ParentIssueID      *string  `json:"parent_issue_id"`
+-	ProjectID          *string  `json:"project_id"`
+-	DueDate            *string  `json:"due_date"`
+-	AttachmentIDs      []string `json:"attachment_ids,omitempty"`
++	Title         string   `json:"title"`
++	Description   *string  `json:"description"`
++	Status        string   `json:"status"`
++	Priority      string   `json:"priority"`
++	AssigneeType  *string  `json:"assignee_type"`
++	AssigneeID    *string  `json:"assignee_id"`
++	ParentIssueID *string  `json:"parent_issue_id"`
++	ProjectID     *string  `json:"project_id"`
++	DueDate       *string  `json:"due_date"`
++	AttachmentIDs []string `json:"attachment_ids,omitempty"`
+ }
+ 
+ func (h *Handler) CreateIssue(w http.ResponseWriter, r *http.Request) {
+@@ -866,20 +866,20 @@ func (h *Handler) CreateIssue(w http.ResponseWriter, r *http.Request) {
+ 	creatorType, actualCreatorID := h.resolveActor(r, creatorID, workspaceID)
+ 
+ 	issue, err := qtx.CreateIssue(r.Context(), db.CreateIssueParams{
+-		WorkspaceID:        parseUUID(workspaceID),
+-		Title:              req.Title,
+-		Description:        ptrToText(req.Description),
+-		Status:             status,
+-		Priority:           priority,
+-		AssigneeType:       assigneeType,
+-		AssigneeID:         assigneeID,
+-		CreatorType:        creatorType,
+-		CreatorID:          parseUUID(actualCreatorID),
+-		ParentIssueID:      parentIssueID,
+-		Position:           0,
+-		DueDate:            dueDate,
+-		Number:             issueNumber,
+-		ProjectID:          projectID,
++		WorkspaceID:   parseUUID(workspaceID),
++		Title:         req.Title,
++		Description:   ptrToText(req.Description),
++		Status:        status,
++		Priority:      priority,
++		AssigneeType:  assigneeType,
++		AssigneeID:    assigneeID,
++		CreatorType:   creatorType,
++		CreatorID:     parseUUID(actualCreatorID),
++		ParentIssueID: parentIssueID,
++		Position:      0,
++		DueDate:       dueDate,
++		Number:        issueNumber,
++		ProjectID:     projectID,
+ 	})
+ 	if err != nil {
+ 		slog.Warn("create issue failed", append(logger.RequestAttrs(r), "error", err, "workspace_id", workspaceID)...)
+@@ -928,16 +928,16 @@ func (h *Handler) CreateIssue(w http.ResponseWriter, r *http.Request) {
+ }
+ 
+ type UpdateIssueRequest struct {
+-	Title              *string  `json:"title"`
+-	Description        *string  `json:"description"`
+-	Status             *string  `json:"status"`
+-	Priority           *string  `json:"priority"`
+-	AssigneeType       *string  `json:"assignee_type"`
+-	AssigneeID         *string  `json:"assignee_id"`
+-	Position           *float64 `json:"position"`
+-	DueDate            *string  `json:"due_date"`
+-	ParentIssueID      *string  `json:"parent_issue_id"`
+-	ProjectID          *string  `json:"project_id"`
++	Title         *string  `json:"title"`
++	Description   *string  `json:"description"`
++	Status        *string  `json:"status"`
++	Priority      *string  `json:"priority"`
++	AssigneeType  *string  `json:"assignee_type"`
++	AssigneeID    *string  `json:"assignee_id"`
++	Position      *float64 `json:"position"`
++	DueDate       *string  `json:"due_date"`
++	ParentIssueID *string  `json:"parent_issue_id"`
++	ProjectID     *string  `json:"project_id"`
+ }
+ 
+ func (h *Handler) UpdateIssue(w http.ResponseWriter, r *http.Request) {
+diff --git a/server/internal/handler/issue_reaction.go b/server/internal/handler/issue_reaction.go
+index b4e0a077f01458ae750d9ecc28383f6d6f9bfa9a..bcb8eb6ff86d52c02214c106205bbc95cfcaeafa 100644
+--- a/server/internal/handler/issue_reaction.go
++++ b/server/internal/handler/issue_reaction.go
+@@ -5,10 +5,10 @@ import (
+ 	"log/slog"
+ 	"net/http"
+ 
++	"github.com/SparkAIUR/multica/server/internal/logger"
++	db "github.com/SparkAIUR/multica/server/pkg/db/generated"
++	"github.com/SparkAIUR/multica/server/pkg/protocol"
+ 	"github.com/go-chi/chi/v5"
+-	"github.com/multica-ai/multica/server/internal/logger"
+-	db "github.com/multica-ai/multica/server/pkg/db/generated"
+-	"github.com/multica-ai/multica/server/pkg/protocol"
+ )
+ 
+ type IssueReactionResponse struct {
+diff --git a/server/internal/handler/personal_access_token.go b/server/internal/handler/personal_access_token.go
+index 7f6401acacfc82166318cbcb4d4beb0a41da16b2..68d613e9d22fb60895c8b6c1605a4292a8348397 100644
+--- a/server/internal/handler/personal_access_token.go
++++ b/server/internal/handler/personal_access_token.go
+@@ -5,10 +5,10 @@ import (
+ 	"net/http"
+ 	"time"
+ 
++	"github.com/SparkAIUR/multica/server/internal/auth"
++	db "github.com/SparkAIUR/multica/server/pkg/db/generated"
+ 	"github.com/go-chi/chi/v5"
+ 	"github.com/jackc/pgx/v5/pgtype"
+-	"github.com/multica-ai/multica/server/internal/auth"
+-	db "github.com/multica-ai/multica/server/pkg/db/generated"
+ )
+ 
+ type PersonalAccessTokenResponse struct {
+@@ -37,8 +37,8 @@ func patToResponse(pat db.PersonalAccessToken) PersonalAccessTokenResponse {
+ }
+ 
+ type CreatePATRequest struct {
+-	Name         string `json:"name"`
+-	ExpiresInDays *int  `json:"expires_in_days"`
++	Name          string `json:"name"`
++	ExpiresInDays *int   `json:"expires_in_days"`
+ }
+ 
+ func (h *Handler) CreatePersonalAccessToken(w http.ResponseWriter, r *http.Request) {
+@@ -77,11 +77,11 @@ func (h *Handler) CreatePersonalAccessToken(w http.ResponseWriter, r *http.Reque
+ 	}
+ 
+ 	pat, err := h.Queries.CreatePersonalAccessToken(r.Context(), db.CreatePersonalAccessTokenParams{
+-		UserID:    parseUUID(userID),
+-		Name:      req.Name,
+-		TokenHash: auth.HashToken(rawToken),
++		UserID:      parseUUID(userID),
++		Name:        req.Name,
++		TokenHash:   auth.HashToken(rawToken),
+ 		TokenPrefix: prefix,
+-		ExpiresAt: expiresAt,
++		ExpiresAt:   expiresAt,
+ 	})
+ 	if err != nil {
+ 		writeError(w, http.StatusInternalServerError, "failed to create token")
+diff --git a/server/internal/handler/pin.go b/server/internal/handler/pin.go
+index d3cdde3bcb271cf76ab868167885b49c60d977b9..f380060e65083453862ab1bed6300dc392c79701 100644
+--- a/server/internal/handler/pin.go
++++ b/server/internal/handler/pin.go
+@@ -5,9 +5,9 @@ import (
+ 	"net/http"
+ 	"strconv"
+ 
++	db "github.com/SparkAIUR/multica/server/pkg/db/generated"
++	"github.com/SparkAIUR/multica/server/pkg/protocol"
+ 	"github.com/go-chi/chi/v5"
+-	db "github.com/multica-ai/multica/server/pkg/db/generated"
+-	"github.com/multica-ai/multica/server/pkg/protocol"
+ )
+ 
+ type PinnedItemResponse struct {
+diff --git a/server/internal/handler/project.go b/server/internal/handler/project.go
+index 990ca729d231bf999ec6d0ff9afedf0ecd47c517..04b24d6f9404268886cb7738e127305445508ef2 100644
+--- a/server/internal/handler/project.go
++++ b/server/internal/handler/project.go
+@@ -10,10 +10,10 @@ import (
+ 	"strconv"
+ 	"strings"
+ 
++	db "github.com/SparkAIUR/multica/server/pkg/db/generated"
++	"github.com/SparkAIUR/multica/server/pkg/protocol"
+ 	"github.com/go-chi/chi/v5"
+ 	"github.com/jackc/pgx/v5/pgtype"
+-	db "github.com/multica-ai/multica/server/pkg/db/generated"
+-	"github.com/multica-ai/multica/server/pkg/protocol"
+ )
+ 
+ type ProjectResponse struct {
+diff --git a/server/internal/handler/reaction.go b/server/internal/handler/reaction.go
+index 2dae83e6e1bdba0a0316e5e501baa5ce8d7261b3..07f3504e252843d43454f9d13e4de68115be94a5 100644
+--- a/server/internal/handler/reaction.go
++++ b/server/internal/handler/reaction.go
+@@ -5,11 +5,11 @@ import (
+ 	"log/slog"
+ 	"net/http"
+ 
++	"github.com/SparkAIUR/multica/server/internal/logger"
++	db "github.com/SparkAIUR/multica/server/pkg/db/generated"
++	"github.com/SparkAIUR/multica/server/pkg/protocol"
+ 	"github.com/go-chi/chi/v5"
+ 	"github.com/jackc/pgx/v5/pgtype"
+-	"github.com/multica-ai/multica/server/internal/logger"
+-	db "github.com/multica-ai/multica/server/pkg/db/generated"
+-	"github.com/multica-ai/multica/server/pkg/protocol"
+ )
+ 
+ type ReactionResponse struct {
+diff --git a/server/internal/handler/runtime.go b/server/internal/handler/runtime.go
+index fee7169900b5372e76fdde4d0e43e5be5027b29c..b49a761975dc43c2b3bb26fd7ec44e8da92e2aca 100644
+--- a/server/internal/handler/runtime.go
++++ b/server/internal/handler/runtime.go
+@@ -7,10 +7,10 @@ import (
+ 	"strconv"
+ 	"time"
+ 
++	db "github.com/SparkAIUR/multica/server/pkg/db/generated"
++	"github.com/SparkAIUR/multica/server/pkg/protocol"
+ 	"github.com/go-chi/chi/v5"
+ 	"github.com/jackc/pgx/v5/pgtype"
+-	db "github.com/multica-ai/multica/server/pkg/db/generated"
+-	"github.com/multica-ai/multica/server/pkg/protocol"
+ )
+ 
+ type AgentRuntimeResponse struct {
+diff --git a/server/internal/handler/skill.go b/server/internal/handler/skill.go
+index c1a7404daf2895d5cd1bd599b2d6909ebc308e1e..06ef9d796ebc3b361695b205ea64661aa7284f40 100644
+--- a/server/internal/handler/skill.go
++++ b/server/internal/handler/skill.go
+@@ -11,24 +11,24 @@ import (
+ 	"strings"
+ 	"time"
+ 
++	db "github.com/SparkAIUR/multica/server/pkg/db/generated"
++	"github.com/SparkAIUR/multica/server/pkg/protocol"
+ 	"github.com/go-chi/chi/v5"
+ 	"github.com/jackc/pgx/v5/pgtype"
+-	db "github.com/multica-ai/multica/server/pkg/db/generated"
+-	"github.com/multica-ai/multica/server/pkg/protocol"
+ )
+ 
+ // --- Response structs ---
+ 
+ type SkillResponse struct {
+-	ID          string `json:"id"`
+-	WorkspaceID string `json:"workspace_id"`
+-	Name        string `json:"name"`
+-	Description string `json:"description"`
+-	Content     string `json:"content"`
+-	Config      any    `json:"config"`
++	ID          string  `json:"id"`
++	WorkspaceID string  `json:"workspace_id"`
++	Name        string  `json:"name"`
++	Description string  `json:"description"`
++	Content     string  `json:"content"`
++	Config      any     `json:"config"`
+ 	CreatedBy   *string `json:"created_by"`
+-	CreatedAt   string `json:"created_at"`
+-	UpdatedAt   string `json:"updated_at"`
++	CreatedAt   string  `json:"created_at"`
++	UpdatedAt   string  `json:"updated_at"`
+ }
+ 
+ type SkillFileResponse struct {
+diff --git a/server/internal/handler/subscriber.go b/server/internal/handler/subscriber.go
+index 51fac323703866a802fc30bb9edec887cc5e9226..475b439a166c7f77b335c32657d75f4bd27ab07b 100644
+--- a/server/internal/handler/subscriber.go
++++ b/server/internal/handler/subscriber.go
+@@ -4,9 +4,9 @@ import (
+ 	"encoding/json"
+ 	"net/http"
+ 
++	db "github.com/SparkAIUR/multica/server/pkg/db/generated"
++	"github.com/SparkAIUR/multica/server/pkg/protocol"
+ 	"github.com/go-chi/chi/v5"
+-	db "github.com/multica-ai/multica/server/pkg/db/generated"
+-	"github.com/multica-ai/multica/server/pkg/protocol"
+ )
+ 
+ // SubscriberResponse is the JSON shape returned for each issue subscriber.
+diff --git a/server/internal/handler/subscriber_test.go b/server/internal/handler/subscriber_test.go
+index bcc9fa550f0cd27a6b02edd7cf20692037e4733a..e98bb03b6fd0d8a8de9c5c38faddd798e4961546 100644
+--- a/server/internal/handler/subscriber_test.go
++++ b/server/internal/handler/subscriber_test.go
+@@ -7,7 +7,7 @@ import (
+ 	"net/http/httptest"
+ 	"testing"
+ 
+-	db "github.com/multica-ai/multica/server/pkg/db/generated"
++	db "github.com/SparkAIUR/multica/server/pkg/db/generated"
+ )
+ 
+ func TestSubscriberAPI(t *testing.T) {
+diff --git a/server/internal/handler/trigger_test.go b/server/internal/handler/trigger_test.go
+index a735f403abe4ccd1f3ace60fc8c6e83343f1d049..f2995515ca1aebaef9ad7f33f7068beece358974 100644
+--- a/server/internal/handler/trigger_test.go
++++ b/server/internal/handler/trigger_test.go
+@@ -4,8 +4,8 @@ import (
+ 	"fmt"
+ 	"testing"
+ 
++	db "github.com/SparkAIUR/multica/server/pkg/db/generated"
+ 	"github.com/jackc/pgx/v5/pgtype"
+-	db "github.com/multica-ai/multica/server/pkg/db/generated"
+ )
+ 
+ // Helper to build a pgtype.UUID from a string.
+@@ -266,4 +266,3 @@ func TestOnCommentTriggerDecision(t *testing.T) {
+ 		})
+ 	}
+ }
+-
+diff --git a/server/internal/handler/workspace.go b/server/internal/handler/workspace.go
+index 068076bb0e787a7b51b3b171f3c97be99319d449..4ad362c3a8084ce71ae02fc8fd40db5129b88de6 100644
+--- a/server/internal/handler/workspace.go
++++ b/server/internal/handler/workspace.go
+@@ -7,11 +7,11 @@ import (
+ 	"regexp"
+ 	"strings"
+ 
++	"github.com/SparkAIUR/multica/server/internal/logger"
++	db "github.com/SparkAIUR/multica/server/pkg/db/generated"
++	"github.com/SparkAIUR/multica/server/pkg/protocol"
+ 	"github.com/go-chi/chi/v5"
+ 	"github.com/jackc/pgx/v5/pgtype"
+-	"github.com/multica-ai/multica/server/internal/logger"
+-	db "github.com/multica-ai/multica/server/pkg/db/generated"
+-	"github.com/multica-ai/multica/server/pkg/protocol"
+ )
+ 
+ var nonAlpha = regexp.MustCompile(`[^a-zA-Z]`)
+diff --git a/server/internal/mention/expand.go b/server/internal/mention/expand.go
+index 1c9d9329155d550f1c41412a0837b56832b61908..230e4368ba6c348e72ce6e40aa9df041a0b29d6e 100644
+--- a/server/internal/mention/expand.go
++++ b/server/internal/mention/expand.go
+@@ -9,8 +9,8 @@ import (
+ 	"strconv"
+ 	"strings"
+ 
++	db "github.com/SparkAIUR/multica/server/pkg/db/generated"
+ 	"github.com/jackc/pgx/v5/pgtype"
+-	db "github.com/multica-ai/multica/server/pkg/db/generated"
+ )
+ 
+ // IssueResolver looks up an issue by workspace and number.
+diff --git a/server/internal/mention/expand_test.go b/server/internal/mention/expand_test.go
+index 0fa3d1b7bf0635b4cc194b312892f45fe02355a4..f10f42c537ea66ade1f82ee6e985fc2b50276f5a 100644
+--- a/server/internal/mention/expand_test.go
++++ b/server/internal/mention/expand_test.go
+@@ -5,8 +5,8 @@ import (
+ 	"fmt"
+ 	"testing"
+ 
++	db "github.com/SparkAIUR/multica/server/pkg/db/generated"
+ 	"github.com/jackc/pgx/v5/pgtype"
+-	db "github.com/multica-ai/multica/server/pkg/db/generated"
+ )
+ 
+ // mockResolver implements Resolver for testing.
+@@ -47,9 +47,9 @@ func TestExpandIssueIdentifiers(t *testing.T) {
+ 	}
+ 
+ 	tests := []struct {
+-		name    string
+-		input   string
+-		want    string
++		name  string
++		input string
++		want  string
+ 	}{
+ 		{
+ 			name:  "basic replacement",
+diff --git a/server/internal/middleware/auth.go b/server/internal/middleware/auth.go
+index 3227b83aacc6bfcf68cead933421c8b58da895a4..56f54d8a29775106be14e11572441e4a8fc84ea8 100644
+--- a/server/internal/middleware/auth.go
++++ b/server/internal/middleware/auth.go
+@@ -6,11 +6,11 @@ import (
+ 	"net/http"
+ 	"strings"
+ 
++	"github.com/SparkAIUR/multica/server/internal/auth"
++	"github.com/SparkAIUR/multica/server/internal/util"
++	db "github.com/SparkAIUR/multica/server/pkg/db/generated"
+ 	"github.com/golang-jwt/jwt/v5"
+ 	"github.com/jackc/pgx/v5/pgtype"
+-	"github.com/multica-ai/multica/server/internal/auth"
+-	"github.com/multica-ai/multica/server/internal/util"
+-	db "github.com/multica-ai/multica/server/pkg/db/generated"
+ )
+ 
+ func uuidToString(u pgtype.UUID) string { return util.UUIDToString(u) }
+diff --git a/server/internal/middleware/auth_test.go b/server/internal/middleware/auth_test.go
+index f7d65e87024b7f8ab5cc6d6977e77bca4c788ff4..d61a18f712ef67c11ed9325c0d0769620f0b1f11 100644
+--- a/server/internal/middleware/auth_test.go
++++ b/server/internal/middleware/auth_test.go
+@@ -6,8 +6,8 @@ import (
+ 	"testing"
+ 	"time"
+ 
++	"github.com/SparkAIUR/multica/server/internal/auth"
+ 	"github.com/golang-jwt/jwt/v5"
+-	"github.com/multica-ai/multica/server/internal/auth"
+ )
+ 
+ func generateToken(claims jwt.MapClaims, secret []byte) string {
+diff --git a/server/internal/middleware/cloudfront.go b/server/internal/middleware/cloudfront.go
+index b6a27d7518fc3ff2af09df300b3fca4fee426179..b2e0c316be9438f527586df347b714baa5b20349 100644
+--- a/server/internal/middleware/cloudfront.go
++++ b/server/internal/middleware/cloudfront.go
+@@ -4,7 +4,7 @@ import (
+ 	"net/http"
+ 	"time"
+ 
+-	"github.com/multica-ai/multica/server/internal/auth"
++	"github.com/SparkAIUR/multica/server/internal/auth"
+ )
+ 
+ // RefreshCloudFrontCookies is middleware that refreshes CloudFront signed cookies
+diff --git a/server/internal/middleware/daemon_auth.go b/server/internal/middleware/daemon_auth.go
+index a534a20f8d2f9459a62db36de6289bac7c992abb..b6f48cd7cf81240446cf122c2b9a2518ec211578 100644
+--- a/server/internal/middleware/daemon_auth.go
++++ b/server/internal/middleware/daemon_auth.go
+@@ -6,9 +6,9 @@ import (
+ 	"net/http"
+ 	"strings"
+ 
++	"github.com/SparkAIUR/multica/server/internal/auth"
++	db "github.com/SparkAIUR/multica/server/pkg/db/generated"
+ 	"github.com/golang-jwt/jwt/v5"
+-	"github.com/multica-ai/multica/server/internal/auth"
+-	db "github.com/multica-ai/multica/server/pkg/db/generated"
+ )
+ 
+ // Daemon context keys.
+diff --git a/server/internal/middleware/workspace.go b/server/internal/middleware/workspace.go
+index b9b3ee7cdeb865fece11350c35a203223689e78c..e447c1583a4baacce62bc659e89e2536c72531c8 100644
+--- a/server/internal/middleware/workspace.go
++++ b/server/internal/middleware/workspace.go
+@@ -4,9 +4,9 @@ import (
+ 	"context"
+ 	"net/http"
+ 
++	"github.com/SparkAIUR/multica/server/internal/util"
++	db "github.com/SparkAIUR/multica/server/pkg/db/generated"
+ 	"github.com/go-chi/chi/v5"
+-	"github.com/multica-ai/multica/server/internal/util"
+-	db "github.com/multica-ai/multica/server/pkg/db/generated"
+ )
+ 
+ // Context keys for workspace-scoped request data.
+diff --git a/server/internal/realtime/hub.go b/server/internal/realtime/hub.go
+index 4012a8ded136930b6db47fbb35e752b1fa92e44d..edffbb249c8a18fc1f2b3e81cfdb76136f95d27b 100644
+--- a/server/internal/realtime/hub.go
++++ b/server/internal/realtime/hub.go
+@@ -11,9 +11,9 @@ import (
+ 	"sync/atomic"
+ 	"time"
+ 
++	"github.com/SparkAIUR/multica/server/internal/auth"
+ 	"github.com/golang-jwt/jwt/v5"
+ 	"github.com/gorilla/websocket"
+-	"github.com/multica-ai/multica/server/internal/auth"
+ )
+ 
+ // MembershipChecker verifies a user belongs to a workspace.
+@@ -96,7 +96,7 @@ type Client struct {
+ // Hub manages WebSocket connections organized by workspace rooms.
+ type Hub struct {
+ 	rooms      map[string]map[*Client]bool // workspaceID -> clients
+-	broadcast  chan []byte                  // global broadcast (daemon events)
++	broadcast  chan []byte                 // global broadcast (daemon events)
+ 	register   chan *Client
+ 	unregister chan *Client
+ 	mu         sync.RWMutex
+diff --git a/server/internal/realtime/hub_test.go b/server/internal/realtime/hub_test.go
+index 6f9778841169d84753f5035d135826c337e936f1..0f7378dd3aa0a36139426cd543b1a35684565bc0 100644
+--- a/server/internal/realtime/hub_test.go
++++ b/server/internal/realtime/hub_test.go
+@@ -9,9 +9,9 @@ import (
+ 	"testing"
+ 	"time"
+ 
++	"github.com/SparkAIUR/multica/server/internal/auth"
+ 	"github.com/golang-jwt/jwt/v5"
+ 	"github.com/gorilla/websocket"
+-	"github.com/multica-ai/multica/server/internal/auth"
+ )
+ 
+ const testWorkspaceID = "test-workspace"
+diff --git a/server/internal/service/email.go b/server/internal/service/email.go
+index 7ce61d4f0bc964b509aed845807c51df31ab822e..c921518a6fa97c698d57ac573bc3029b23513a56 100644
+--- a/server/internal/service/email.go
++++ b/server/internal/service/email.go
+@@ -2,36 +2,73 @@ package service
+ 
+ import (
+ 	"fmt"
++	"net"
++	"net/smtp"
+ 	"os"
++	"strings"
+ 
+ 	"github.com/resend/resend-go/v2"
+ )
+ 
+ type EmailService struct {
+-	client    *resend.Client
+-	fromEmail string
++	resendClient *resend.Client
++	fromEmail    string
++	smtpHost     string
++	smtpAddr     string
++	smtpUsername string
++	smtpPassword string
+ }
+ 
+ func NewEmailService() *EmailService {
+-	apiKey := os.Getenv("RESEND_API_KEY")
+-	from := os.Getenv("RESEND_FROM_EMAIL")
++	apiKey := strings.TrimSpace(os.Getenv("RESEND_API_KEY"))
++	from := strings.TrimSpace(os.Getenv("RESEND_FROM_EMAIL"))
+ 	if from == "" {
+ 		from = "noreply@multica.ai"
+ 	}
+ 
+-	var client *resend.Client
++	var resendClient *resend.Client
+ 	if apiKey != "" {
+-		client = resend.NewClient(apiKey)
++		resendClient = resend.NewClient(apiKey)
++	}
++
++	smtpHost := strings.TrimSpace(os.Getenv("SMTP_HOST"))
++	smtpPort := strings.TrimSpace(os.Getenv("SMTP_PORT"))
++	if smtpPort == "" {
++		smtpPort = "587"
++	}
++	smtpAddr := ""
++	if smtpHost != "" {
++		smtpAddr = net.JoinHostPort(smtpHost, smtpPort)
++	}
++	smtpUsername := strings.TrimSpace(os.Getenv("SMTP_USERNAME"))
++	smtpPassword := os.Getenv("SMTP_PASSWORD")
++	smtpFrom := strings.TrimSpace(os.Getenv("SMTP_FROM_EMAIL"))
++	if smtpFrom != "" {
++		from = smtpFrom
+ 	}
+ 
+ 	return &EmailService{
+-		client:    client,
+-		fromEmail: from,
++		resendClient: resendClient,
++		fromEmail:    from,
++		smtpHost:     smtpHost,
++		smtpAddr:     smtpAddr,
++		smtpUsername: smtpUsername,
++		smtpPassword: smtpPassword,
+ 	}
+ }
+ 
+ func (s *EmailService) SendVerificationCode(to, code string) error {
+-	if s.client == nil {
++	subject := "Your Multica verification code"
++	textBody := fmt.Sprintf(
++		"Your verification code: %s\n\nThis code expires in 10 minutes.\nIf you didn't request this code, you can safely ignore this email.\n",
++		code,
++	)
++
++	if s.smtpAddr != "" {
++		return s.sendViaSMTP(to, subject, textBody)
++	}
++
++	if s.resendClient == nil {
+ 		fmt.Printf("[DEV] Verification code for %s: %s\n", to, code)
+ 		return nil
+ 	}
+@@ -39,7 +76,7 @@ func (s *EmailService) SendVerificationCode(to, code string) error {
+ 	params := &resend.SendEmailRequest{
+ 		From:    s.fromEmail,
+ 		To:      []string{to},
+-		Subject: "Your Multica verification code",
++		Subject: subject,
+ 		Html: fmt.Sprintf(
+ 			`<div style="font-family: sans-serif; max-width: 400px; margin: 0 auto;">
+ 				<h2>Your verification code</h2>
+@@ -49,6 +86,24 @@ func (s *EmailService) SendVerificationCode(to, code string) error {
+ 			</div>`, code),
+ 	}
+ 
+-	_, err := s.client.Emails.Send(params)
++	_, err := s.resendClient.Emails.Send(params)
+ 	return err
+ }
++
++func (s *EmailService) sendViaSMTP(to, subject, body string) error {
++	headers := []string{
++		fmt.Sprintf("From: %s", s.fromEmail),
++		fmt.Sprintf("To: %s", to),
++		fmt.Sprintf("Subject: %s", subject),
++		"MIME-Version: 1.0",
++		`Content-Type: text/plain; charset="UTF-8"`,
++	}
++	message := strings.Join(headers, "\r\n") + "\r\n\r\n" + body
++
++	var auth smtp.Auth
++	if s.smtpUsername != "" || s.smtpPassword != "" {
++		auth = smtp.PlainAuth("", s.smtpUsername, s.smtpPassword, s.smtpHost)
++	}
++
++	return smtp.SendMail(s.smtpAddr, auth, s.fromEmail, []string{to}, []byte(message))
++}
+diff --git a/server/internal/service/task.go b/server/internal/service/task.go
+index 518bfe2c98e3f548abd53ac2ab8d03cd685a602e..79c6f2f38688cb01581783c5537012d032060620 100644
+--- a/server/internal/service/task.go
++++ b/server/internal/service/task.go
+@@ -9,15 +9,15 @@ import (
+ 
+ 	"strconv"
+ 
++	"github.com/SparkAIUR/multica/server/internal/events"
++	"github.com/SparkAIUR/multica/server/internal/mention"
++	"github.com/SparkAIUR/multica/server/internal/realtime"
++	"github.com/SparkAIUR/multica/server/internal/util"
++	db "github.com/SparkAIUR/multica/server/pkg/db/generated"
++	"github.com/SparkAIUR/multica/server/pkg/protocol"
++	"github.com/SparkAIUR/multica/server/pkg/redact"
+ 	"github.com/jackc/pgx/v5"
+ 	"github.com/jackc/pgx/v5/pgtype"
+-	"github.com/multica-ai/multica/server/internal/events"
+-	"github.com/multica-ai/multica/server/internal/mention"
+-	"github.com/multica-ai/multica/server/internal/realtime"
+-	"github.com/multica-ai/multica/server/internal/util"
+-	db "github.com/multica-ai/multica/server/pkg/db/generated"
+-	"github.com/multica-ai/multica/server/pkg/protocol"
+-	"github.com/multica-ai/multica/server/pkg/redact"
+ )
+ 
+ type TaskService struct {
+diff --git a/server/internal/storage/s3.go b/server/internal/storage/s3.go
+index 6ac13e537a9406a4f462b7209446aa2c965a0e6b..f0602e3c646cb0aebc8cfde06ebccc469704fad3 100644
+--- a/server/internal/storage/s3.go
++++ b/server/internal/storage/s3.go
+@@ -7,19 +7,26 @@ import (
+ 	"log/slog"
+ 	"os"
+ 	"strings"
++	"time"
+ 
+ 	"github.com/aws/aws-sdk-go-v2/aws"
++	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
+ 	"github.com/aws/aws-sdk-go-v2/config"
+ 	"github.com/aws/aws-sdk-go-v2/credentials"
+ 	"github.com/aws/aws-sdk-go-v2/service/s3"
+ 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
+ )
+ 
++type s3PresignGetObjectAPI interface {
++	PresignGetObject(ctx context.Context, params *s3.GetObjectInput, optFns ...func(*s3.PresignOptions)) (*v4.PresignedHTTPRequest, error)
++}
++
+ type S3Storage struct {
+-	client      *s3.Client
+-	bucket      string
+-	cdnDomain   string // if set, returned URLs use this instead of bucket name
+-	endpointURL string // if set, use path-style URLs (e.g. MinIO)
++	client        *s3.Client
++	presignClient s3PresignGetObjectAPI
++	bucket        string
++	cdnDomain     string // if set, returned URLs use this instead of bucket name
++	endpointURL   string // if set, use path-style URLs (e.g. MinIO)
+ }
+ 
+ // NewS3StorageFromEnv creates an S3Storage from environment variables.
+@@ -71,11 +78,13 @@ func NewS3StorageFromEnv() *S3Storage {
+ 	}
+ 
+ 	slog.Info("S3 storage initialized", "bucket", bucket, "region", region, "cdn_domain", cdnDomain, "endpoint_url", endpointURL)
++	client := s3.NewFromConfig(cfg, s3Opts...)
+ 	return &S3Storage{
+-		client:      s3.NewFromConfig(cfg, s3Opts...),
+-		bucket:      bucket,
+-		cdnDomain:   cdnDomain,
+-		endpointURL: endpointURL,
++		client:        client,
++		presignClient: s3.NewPresignClient(client),
++		bucket:        bucket,
++		cdnDomain:     cdnDomain,
++		endpointURL:   endpointURL,
+ 	}
+ }
+ 
+@@ -165,3 +174,23 @@ func (s *S3Storage) Upload(ctx context.Context, key string, data []byte, content
+ 	link := fmt.Sprintf("https://%s/%s", domain, key)
+ 	return link, nil
+ }
++
++func (s *S3Storage) SignedDownloadURL(ctx context.Context, rawURL string, expiry time.Duration) (string, error) {
++	if s.presignClient == nil {
++		return "", fmt.Errorf("presign client is not configured")
++	}
++	key := s.KeyFromURL(rawURL)
++	if key == "" {
++		return "", fmt.Errorf("unable to resolve object key from url")
++	}
++	req, err := s.presignClient.PresignGetObject(ctx, &s3.GetObjectInput{
++		Bucket: aws.String(s.bucket),
++		Key:    aws.String(key),
++	}, func(o *s3.PresignOptions) {
++		o.Expires = expiry
++	})
++	if err != nil {
++		return "", fmt.Errorf("presign get object: %w", err)
++	}
++	return req.URL, nil
++}
+diff --git a/server/internal/storage/s3_test.go b/server/internal/storage/s3_test.go
+index ed68bd8ad02be1e57878aa0b10a9cd39d86c5281..73d1cb8b3466fb744b24a6012693196423fec8ba 100644
+--- a/server/internal/storage/s3_test.go
++++ b/server/internal/storage/s3_test.go
+@@ -1,6 +1,30 @@
+ package storage
+ 
+-import "testing"
++import (
++	"context"
++	"testing"
++	"time"
++
++	"github.com/aws/aws-sdk-go-v2/aws"
++	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
++	"github.com/aws/aws-sdk-go-v2/service/s3"
++)
++
++type fakePresignClient struct {
++	lastKey string
++	url     string
++	err     error
++}
++
++func (f *fakePresignClient) PresignGetObject(_ context.Context, params *s3.GetObjectInput, _ ...func(*s3.PresignOptions)) (*v4.PresignedHTTPRequest, error) {
++	if params != nil && params.Key != nil {
++		f.lastKey = aws.ToString(params.Key)
++	}
++	if f.err != nil {
++		return nil, f.err
++	}
++	return &v4.PresignedHTTPRequest{URL: f.url}, nil
++}
+ 
+ func TestS3StorageKeyFromURL_CustomEndpointPreservesNestedKey(t *testing.T) {
+ 	s := &S3Storage{
+@@ -27,3 +51,31 @@ func TestS3StorageKeyFromURL_CustomEndpointWithTrailingSlash(t *testing.T) {
+ 		t.Fatalf("KeyFromURL(%q) = %q, want %q", rawURL, got, "uploads/abc/file.png")
+ 	}
+ }
++
++func TestS3StorageSignedDownloadURL_CustomEndpoint(t *testing.T) {
++	presign := &fakePresignClient{url: "http://localhost:9000/presigned"}
++	s := &S3Storage{
++		bucket:        "test-bucket",
++		endpointURL:   "http://localhost:9000",
++		presignClient: presign,
++	}
++
++	rawURL := "http://localhost:9000/test-bucket/uploads/abc/file.png"
++	got, err := s.SignedDownloadURL(context.Background(), rawURL, 5*time.Minute)
++	if err != nil {
++		t.Fatalf("SignedDownloadURL returned error: %v", err)
++	}
++	if got != "http://localhost:9000/presigned" {
++		t.Fatalf("SignedDownloadURL() = %q, want %q", got, "http://localhost:9000/presigned")
++	}
++	if presign.lastKey != "uploads/abc/file.png" {
++		t.Fatalf("presign key = %q, want %q", presign.lastKey, "uploads/abc/file.png")
++	}
++}
++
++func TestS3StorageSignedDownloadURL_NoPresignClient(t *testing.T) {
++	s := &S3Storage{bucket: "test-bucket"}
++	if _, err := s.SignedDownloadURL(context.Background(), "https://example.com/file.png", 5*time.Minute); err == nil {
++		t.Fatal("SignedDownloadURL expected error when presign client is not configured")
++	}
++}
+diff --git a/server/internal/storage/storage.go b/server/internal/storage/storage.go
+index b35fd222c3c85cee77ca1783e6bd22f9b365ddbe..6c7ac1712e628f23d8dd1666650e5bd3a19eec28 100644
+--- a/server/internal/storage/storage.go
++++ b/server/internal/storage/storage.go
+@@ -2,6 +2,7 @@ package storage
+ 
+ import (
+ 	"context"
++	"time"
+ )
+ 
+ type Storage interface {
+@@ -10,3 +11,9 @@ type Storage interface {
+ 	DeleteKeys(ctx context.Context, keys []string)
+ 	KeyFromURL(rawURL string) string
+ }
++
++// DownloadURLSigner is optional and implemented by storages that can generate
++// short-lived signed download URLs for private objects.
++type DownloadURLSigner interface {
++	SignedDownloadURL(ctx context.Context, rawURL string, expiry time.Duration) (string, error)
++}
