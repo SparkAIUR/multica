@@ -9,7 +9,7 @@ import (
 	"sync/atomic"
 	"testing"
 
-	"github.com/multica-ai/multica/server/pkg/agent"
+	"github.com/SparkAIUR/multica/server/pkg/agent"
 )
 
 func TestNormalizeServerBaseURL(t *testing.T) {

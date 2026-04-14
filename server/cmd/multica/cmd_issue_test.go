@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/multica-ai/multica/server/internal/cli"
+	"github.com/SparkAIUR/multica/server/internal/cli"
 )
 
 func TestTruncateID(t *testing.T) {
@@ -156,4 +156,3 @@ func TestValidIssueStatuses(t *testing.T) {
 		t.Errorf("validIssueStatuses has %d entries, expected %d", len(validIssueStatuses), len(expected))
 	}
 }
-

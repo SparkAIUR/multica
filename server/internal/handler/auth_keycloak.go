@@ -8,9 +8,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/multica-ai/multica/server/internal/auth"
-	"github.com/multica-ai/multica/server/internal/logger"
-	db "github.com/multica-ai/multica/server/pkg/db/generated"
+	"github.com/SparkAIUR/multica/server/internal/auth"
+	"github.com/SparkAIUR/multica/server/internal/logger"
+	db "github.com/SparkAIUR/multica/server/pkg/db/generated"
 )
 
 type KeycloakLoginRequest struct {

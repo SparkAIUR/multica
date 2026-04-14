@@ -9,8 +9,8 @@ import (
 	"strconv"
 	"strings"
 
+	db "github.com/SparkAIUR/multica/server/pkg/db/generated"
 	"github.com/jackc/pgx/v5/pgtype"
-	db "github.com/multica-ai/multica/server/pkg/db/generated"
 )
 
 // IssueResolver looks up an issue by workspace and number.

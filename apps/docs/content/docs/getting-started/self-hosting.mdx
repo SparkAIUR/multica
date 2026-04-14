@@ -193,7 +193,12 @@ Keycloak must include a `groups` claim in the ID token if you use `KEYCLOAK_ALLO
 | Variable | Description |
 |----------|-------------|
 | `RESEND_API_KEY` | Your Resend API key |
-| `RESEND_FROM_EMAIL` | Sender email address (default: `noreply@multica.ai`) |
+| `RESEND_FROM_EMAIL` | Sender email address for Resend (default: `noreply@multica.ai`) |
+| `SMTP_HOST` | SMTP server host (if set, SMTP is used instead of Resend) |
+| `SMTP_PORT` | SMTP server port (default: `587`) |
+| `SMTP_USERNAME` | SMTP username |
+| `SMTP_PASSWORD` | SMTP password |
+| `SMTP_FROM_EMAIL` | Sender email for SMTP (falls back to `RESEND_FROM_EMAIL`) |
 
 ### File Storage (Optional)
 

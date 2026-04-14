@@ -5,11 +5,11 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/multica-ai/multica/server/internal/events"
-	"github.com/multica-ai/multica/server/internal/handler"
-	"github.com/multica-ai/multica/server/internal/util"
-	db "github.com/multica-ai/multica/server/pkg/db/generated"
-	"github.com/multica-ai/multica/server/pkg/protocol"
+	"github.com/SparkAIUR/multica/server/internal/events"
+	"github.com/SparkAIUR/multica/server/internal/handler"
+	"github.com/SparkAIUR/multica/server/internal/util"
+	db "github.com/SparkAIUR/multica/server/pkg/db/generated"
+	"github.com/SparkAIUR/multica/server/pkg/protocol"
 )
 
 // listActivitiesForIssue is a test helper that fetches all activity_log records for an issue.
@@ -156,7 +156,7 @@ func TestActivityIssueUpdated_AssigneeChanged(t *testing.T) {
 				AssigneeType: &assigneeType,
 				AssigneeID:   &assigneeID,
 			},
-			"assignee_changed":  true,
+			"assignee_changed":   true,
 			"prev_assignee_type": (*string)(nil),
 			"prev_assignee_id":   (*string)(nil),
 		},

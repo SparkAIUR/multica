@@ -7,10 +7,10 @@ import (
 	"strconv"
 	"time"
 
+	db "github.com/SparkAIUR/multica/server/pkg/db/generated"
+	"github.com/SparkAIUR/multica/server/pkg/protocol"
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgtype"
-	db "github.com/multica-ai/multica/server/pkg/db/generated"
-	"github.com/multica-ai/multica/server/pkg/protocol"
 )
 
 type AgentRuntimeResponse struct {

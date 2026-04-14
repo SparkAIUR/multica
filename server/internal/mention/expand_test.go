@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"testing"
 
+	db "github.com/SparkAIUR/multica/server/pkg/db/generated"
 	"github.com/jackc/pgx/v5/pgtype"
-	db "github.com/multica-ai/multica/server/pkg/db/generated"
 )
 
 // mockResolver implements Resolver for testing.
@@ -47,9 +47,9 @@ func TestExpandIssueIdentifiers(t *testing.T) {
 	}
 
 	tests := []struct {
-		name    string
-		input   string
-		want    string
+		name  string
+		input string
+		want  string
 	}{
 		{
 			name:  "basic replacement",

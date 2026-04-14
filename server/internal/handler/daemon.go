@@ -8,12 +8,12 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/SparkAIUR/multica/server/internal/middleware"
+	db "github.com/SparkAIUR/multica/server/pkg/db/generated"
+	"github.com/SparkAIUR/multica/server/pkg/protocol"
+	"github.com/SparkAIUR/multica/server/pkg/redact"
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgtype"
-	"github.com/multica-ai/multica/server/internal/middleware"
-	db "github.com/multica-ai/multica/server/pkg/db/generated"
-	"github.com/multica-ai/multica/server/pkg/protocol"
-	"github.com/multica-ai/multica/server/pkg/redact"
 )
 
 // ---------------------------------------------------------------------------

@@ -5,11 +5,11 @@ import (
 	"encoding/json"
 	"log/slog"
 
-	"github.com/multica-ai/multica/server/internal/events"
-	"github.com/multica-ai/multica/server/internal/handler"
-	"github.com/multica-ai/multica/server/internal/util"
-	db "github.com/multica-ai/multica/server/pkg/db/generated"
-	"github.com/multica-ai/multica/server/pkg/protocol"
+	"github.com/SparkAIUR/multica/server/internal/events"
+	"github.com/SparkAIUR/multica/server/internal/handler"
+	"github.com/SparkAIUR/multica/server/internal/util"
+	db "github.com/SparkAIUR/multica/server/pkg/db/generated"
+	"github.com/SparkAIUR/multica/server/pkg/protocol"
 )
 
 // registerActivityListeners wires up event bus listeners that record activity

@@ -11,11 +11,11 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/multica-ai/multica/server/internal/cli"
-	"github.com/multica-ai/multica/server/internal/daemon/execenv"
-	"github.com/multica-ai/multica/server/internal/daemon/repocache"
-	"github.com/multica-ai/multica/server/internal/daemon/usage"
-	"github.com/multica-ai/multica/server/pkg/agent"
+	"github.com/SparkAIUR/multica/server/internal/cli"
+	"github.com/SparkAIUR/multica/server/internal/daemon/execenv"
+	"github.com/SparkAIUR/multica/server/internal/daemon/repocache"
+	"github.com/SparkAIUR/multica/server/internal/daemon/usage"
+	"github.com/SparkAIUR/multica/server/pkg/agent"
 )
 
 // workspaceState tracks registered runtimes for a single workspace.

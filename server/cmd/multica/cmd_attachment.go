@@ -9,7 +9,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/multica-ai/multica/server/internal/cli"
+	"github.com/SparkAIUR/multica/server/internal/cli"
 )
 
 var attachmentCmd = &cobra.Command{
@@ -26,8 +26,8 @@ var attachmentDownloadCmd = &cobra.Command{
 
   # Download to a specific directory
   $ multica attachment download abc123 -o /tmp/images`,
-	Args:  exactArgs(1),
-	RunE:  runAttachmentDownload,
+	Args: exactArgs(1),
+	RunE: runAttachmentDownload,
 }
 
 func init() {

@@ -4,9 +4,9 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/SparkAIUR/multica/server/internal/util"
+	db "github.com/SparkAIUR/multica/server/pkg/db/generated"
 	"github.com/go-chi/chi/v5"
-	"github.com/multica-ai/multica/server/internal/util"
-	db "github.com/multica-ai/multica/server/pkg/db/generated"
 )
 
 // Context keys for workspace-scoped request data.

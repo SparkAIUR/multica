@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
+	db "github.com/SparkAIUR/multica/server/pkg/db/generated"
 	"github.com/jackc/pgx/v5/pgtype"
-	db "github.com/multica-ai/multica/server/pkg/db/generated"
 )
 
 // Helper to build a pgtype.UUID from a string.
@@ -266,4 +266,3 @@ func TestOnCommentTriggerDecision(t *testing.T) {
 		})
 	}
 }
-

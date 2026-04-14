@@ -8,8 +8,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/SparkAIUR/multica/server/internal/middleware"
 	"github.com/go-chi/chi/v5"
-	"github.com/multica-ai/multica/server/internal/middleware"
 )
 
 // newDaemonTokenRequest creates an HTTP request with daemon token context set

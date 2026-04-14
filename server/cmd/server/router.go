@@ -12,15 +12,15 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/multica-ai/multica/server/internal/auth"
-	"github.com/multica-ai/multica/server/internal/events"
-	"github.com/multica-ai/multica/server/internal/handler"
-	"github.com/multica-ai/multica/server/internal/middleware"
-	"github.com/multica-ai/multica/server/internal/realtime"
-	"github.com/multica-ai/multica/server/internal/service"
-	"github.com/multica-ai/multica/server/internal/storage"
-	"github.com/multica-ai/multica/server/internal/util"
-	db "github.com/multica-ai/multica/server/pkg/db/generated"
+	"github.com/SparkAIUR/multica/server/internal/auth"
+	"github.com/SparkAIUR/multica/server/internal/events"
+	"github.com/SparkAIUR/multica/server/internal/handler"
+	"github.com/SparkAIUR/multica/server/internal/middleware"
+	"github.com/SparkAIUR/multica/server/internal/realtime"
+	"github.com/SparkAIUR/multica/server/internal/service"
+	"github.com/SparkAIUR/multica/server/internal/storage"
+	"github.com/SparkAIUR/multica/server/internal/util"
+	db "github.com/SparkAIUR/multica/server/pkg/db/generated"
 )
 
 var defaultOrigins = []string{

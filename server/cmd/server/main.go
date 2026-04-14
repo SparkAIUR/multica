@@ -6,15 +6,16 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/multica-ai/multica/server/internal/events"
-	"github.com/multica-ai/multica/server/internal/logger"
-	"github.com/multica-ai/multica/server/internal/realtime"
-	db "github.com/multica-ai/multica/server/pkg/db/generated"
+	"github.com/SparkAIUR/multica/server/internal/events"
+	"github.com/SparkAIUR/multica/server/internal/logger"
+	"github.com/SparkAIUR/multica/server/internal/realtime"
+	db "github.com/SparkAIUR/multica/server/pkg/db/generated"
 )
 
 func main() {
@@ -24,8 +25,10 @@ func main() {
 	if os.Getenv("JWT_SECRET") == "" {
 		slog.Warn("JWT_SECRET is not set — using insecure default. Set JWT_SECRET for production use.")
 	}
-	if os.Getenv("RESEND_API_KEY") == "" {
-		slog.Warn("RESEND_API_KEY is not set — email verification codes will be printed to the log instead of emailed.")
+	hasResend := strings.TrimSpace(os.Getenv("RESEND_API_KEY")) != ""
+	hasSMTP := strings.TrimSpace(os.Getenv("SMTP_HOST")) != ""
+	if !hasResend && !hasSMTP {
+		slog.Warn("No email provider is configured (set SMTP_HOST for SMTP or RESEND_API_KEY for Resend) — verification codes will be printed to the log.")
 	}
 
 	port := os.Getenv("PORT")

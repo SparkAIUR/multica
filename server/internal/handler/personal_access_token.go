@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/SparkAIUR/multica/server/internal/auth"
+	db "github.com/SparkAIUR/multica/server/pkg/db/generated"
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgtype"
-	"github.com/multica-ai/multica/server/internal/auth"
-	db "github.com/multica-ai/multica/server/pkg/db/generated"
 )
 
 type PersonalAccessTokenResponse struct {
@@ -37,8 +37,8 @@ func patToResponse(pat db.PersonalAccessToken) PersonalAccessTokenResponse {
 }
 
 type CreatePATRequest struct {
-	Name         string `json:"name"`
-	ExpiresInDays *int  `json:"expires_in_days"`
+	Name          string `json:"name"`
+	ExpiresInDays *int   `json:"expires_in_days"`
 }
 
 func (h *Handler) CreatePersonalAccessToken(w http.ResponseWriter, r *http.Request) {
@@ -77,11 +77,11 @@ func (h *Handler) CreatePersonalAccessToken(w http.ResponseWriter, r *http.Reque
 	}
 
 	pat, err := h.Queries.CreatePersonalAccessToken(r.Context(), db.CreatePersonalAccessTokenParams{
-		UserID:    parseUUID(userID),
-		Name:      req.Name,
-		TokenHash: auth.HashToken(rawToken),
+		UserID:      parseUUID(userID),
+		Name:        req.Name,
+		TokenHash:   auth.HashToken(rawToken),
 		TokenPrefix: prefix,
-		ExpiresAt: expiresAt,
+		ExpiresAt:   expiresAt,
 	})
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "failed to create token")

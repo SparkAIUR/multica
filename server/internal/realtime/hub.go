@@ -11,9 +11,9 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/SparkAIUR/multica/server/internal/auth"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/gorilla/websocket"
-	"github.com/multica-ai/multica/server/internal/auth"
 )
 
 // MembershipChecker verifies a user belongs to a workspace.
@@ -96,7 +96,7 @@ type Client struct {
 // Hub manages WebSocket connections organized by workspace rooms.
 type Hub struct {
 	rooms      map[string]map[*Client]bool // workspaceID -> clients
-	broadcast  chan []byte                  // global broadcast (daemon events)
+	broadcast  chan []byte                 // global broadcast (daemon events)
 	register   chan *Client
 	unregister chan *Client
 	mu         sync.RWMutex

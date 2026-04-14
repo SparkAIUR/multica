@@ -6,7 +6,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/multica-ai/multica/server/internal/cli"
+	"github.com/SparkAIUR/multica/server/internal/cli"
 )
 
 var configCmd = &cobra.Command{
@@ -79,7 +79,6 @@ func runConfigSet(cmd *cobra.Command, args []string) error {
 	fmt.Fprintf(os.Stderr, "Set %s = %s\n", key, value)
 	return nil
 }
-
 
 func valueOrDefault(v, fallback string) string {
 	if v == "" {
