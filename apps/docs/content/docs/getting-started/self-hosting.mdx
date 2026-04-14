@@ -31,7 +31,7 @@ curl -fsSL https://raw.githubusercontent.com/multica-ai/multica/main/scripts/ins
 multica setup self-host
 ```
 
-This clones the repo, starts all services, installs the CLI, and configures it for localhost. Then open http://localhost:3000 — log in with any email + code **`888888`**.
+This clones the repo, starts all services, installs the CLI, and configures it for localhost. Then open http://localhost:3000 and sign in through Keycloak.
 
 <Callout>
 If the self-host server is already running and you only need the CLI on a macOS/Linux machine, install it with Homebrew: `brew install multica-ai/tap/multica`.
@@ -62,13 +62,20 @@ Once ready:
 If you prefer running the Docker Compose steps manually: `cp .env.example .env`, edit `JWT_SECRET`, then `docker compose -f docker-compose.selfhost.yml up -d`.
 </Callout>
 
-### Step 2 — Log In
+### Step 2 — Configure Keycloak and Log In
 
-Open http://localhost:3000. Enter any email address and use verification code **`888888`** to log in.
+Set the Keycloak variables in `.env` before login:
 
-<Callout>
-This master code works in all non-production environments (when `APP_ENV` is not set to `production`). For production, configure an email provider — see [Configuration](#configuration) below.
-</Callout>
+- `KEYCLOAK_ISSUER_URL`
+- `KEYCLOAK_CLIENT_ID`
+- `KEYCLOAK_CLIENT_SECRET`
+- `KEYCLOAK_REDIRECT_URI`
+- `NEXT_PUBLIC_KEYCLOAK_ISSUER_URL`
+- `NEXT_PUBLIC_KEYCLOAK_CLIENT_ID`
+
+If you enforce group access, also set `KEYCLOAK_ALLOWED_GROUPS` and make sure your Keycloak client includes the `groups` claim in ID tokens.
+
+After updating `.env`, restart services (`make selfhost`), open http://localhost:3000, and click **Continue with Keycloak**.
 
 ### Step 3 — Install CLI & Start Daemon
 
@@ -169,35 +176,42 @@ All configuration is done via environment variables. Copy `.env.example` as a st
 | `JWT_SECRET` | **Must change from default.** Secret key for signing JWT tokens. Use a long random string. | `openssl rand -hex 32` |
 | `FRONTEND_ORIGIN` | URL where the frontend is served (used for CORS) | `https://app.example.com` |
 
-### Email (Required for Authentication)
+### Keycloak SSO (Required for Authentication)
 
-Multica uses email-based magic link authentication via [Resend](https://resend.com).
+| Variable | Description |
+|----------|-------------|
+| `KEYCLOAK_ISSUER_URL` | Keycloak realm issuer URL (e.g. `https://sso.example.com/realms/multica`) |
+| `KEYCLOAK_CLIENT_ID` | OIDC client ID |
+| `KEYCLOAK_CLIENT_SECRET` | OIDC client secret |
+| `KEYCLOAK_REDIRECT_URI` | OAuth callback URL (e.g. `https://app.example.com/auth/callback`) |
+| `KEYCLOAK_ALLOWED_GROUPS` | Comma-separated exact group names. Empty allows all authenticated users. |
+
+Keycloak must include a `groups` claim in the ID token if you use `KEYCLOAK_ALLOWED_GROUPS`.
+
+### Email (Optional outbound email)
 
 | Variable | Description |
 |----------|-------------|
 | `RESEND_API_KEY` | Your Resend API key |
 | `RESEND_FROM_EMAIL` | Sender email address (default: `noreply@multica.ai`) |
 
-### Google OAuth (Optional)
-
-| Variable | Description |
-|----------|-------------|
-| `GOOGLE_CLIENT_ID` | Google OAuth client ID |
-| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret |
-| `GOOGLE_REDIRECT_URI` | OAuth callback URL (e.g. `https://app.example.com/auth/callback`) |
-
 ### File Storage (Optional)
 
-For file uploads and attachments, configure S3 and CloudFront:
+For file uploads and attachments, configure S3-compatible storage (including MinIO):
 
 | Variable | Description |
 |----------|-------------|
 | `S3_BUCKET` | S3 bucket name |
 | `S3_REGION` | AWS region (default: `us-west-2`) |
+| `AWS_ENDPOINT_URL` | S3-compatible endpoint (for MinIO, e.g. `http://minio:9000`) |
+| `AWS_ACCESS_KEY_ID` | Access key for S3-compatible endpoint |
+| `AWS_SECRET_ACCESS_KEY` | Secret key for S3-compatible endpoint |
 | `CLOUDFRONT_DOMAIN` | CloudFront distribution domain |
 | `CLOUDFRONT_KEY_PAIR_ID` | CloudFront key pair ID for signed URLs |
 | `CLOUDFRONT_PRIVATE_KEY` | CloudFront private key (PEM format) |
 | `COOKIE_DOMAIN` | Domain for CloudFront auth cookies |
+
+When CloudFront is not configured, Multica generates presigned S3/MinIO download URLs for private attachments.
 
 ### Server
 
