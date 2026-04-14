@@ -53,8 +53,8 @@ jobs:
 
           dockerhub_backend_base="nudevco/multica-backend"
           dockerhub_web_base="nudevco/multica-web"
-          nudev_backend_base="${{ secrets.REGISTRY_URL }}/multica/backend"
-          nudev_web_base="${{ secrets.REGISTRY_URL }}/multica/web"
+          nudev_backend_base="hub.nu-dev.io/multica/backend"
+          nudev_web_base="hub.nu-dev.io/multica/web"
 
           backend_tags=(
             "${dockerhub_backend_base}:sha-${short_sha}"
