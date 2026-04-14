@@ -18,13 +18,13 @@ jobs:
       nudev_backend_ref: ${{ steps.refs.outputs.nudev_backend_ref }}
       nudev_web_ref: ${{ steps.refs.outputs.nudev_web_ref }}
     steps:
-      - name: Validate registry credentials
-        run: |
-          set -euo pipefail
-          test -n "${{ secrets.DOCKERHUB_USERNAME }}" || (echo "DOCKERHUB_USERNAME secret is required" && exit 1)
-          test -n "${{ secrets.DOCKERHUB_TOKEN }}" || (echo "DOCKERHUB_TOKEN secret is required" && exit 1)
-          test -n "${{ secrets.NUDEV_REGISTRY_USERNAME }}" || (echo "NUDEV_REGISTRY_USERNAME secret is required" && exit 1)
-          test -n "${{ secrets.NUDEV_REGISTRY_PASSWORD }}" || (echo "NUDEV_REGISTRY_PASSWORD secret is required" && exit 1)
+      # - name: Validate registry credentials
+      #   run: |
+      #     set -euo pipefail
+      #     test -n "${{ secrets.DOCKERHUB_USERNAME }}" || (echo "DOCKERHUB_USERNAME secret is required" && exit 1)
+      #     test -n "${{ secrets.DOCKERHUB_TOKEN }}" || (echo "DOCKERHUB_TOKEN secret is required" && exit 1)
+      #     test -n "${{ secrets.REGISTRY_USERNAME }}" || (echo "REGISTRY_USERNAME secret is required" && exit 1)
+      #     test -n "${{ secrets.REGISTRY_PASSWORD }}" || (echo "REGISTRY_PASSWORD secret is required" && exit 1)
 
       - name: Checkout
         uses: actions/checkout@v4
@@ -41,9 +41,9 @@ jobs:
       - name: Login to NuDev registry
         uses: docker/login-action@v3
         with:
-          registry: hub.nu-dev.io
-          username: ${{ secrets.NUDEV_REGISTRY_USERNAME }}
-          password: ${{ secrets.NUDEV_REGISTRY_PASSWORD }}
+          registry: ${{ secrets.REGISTRY_URL }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
 
       - name: Compute image refs
         id: refs
@@ -53,8 +53,8 @@ jobs:
 
           dockerhub_backend_base="nudevco/multica-backend"
           dockerhub_web_base="nudevco/multica-web"
-          nudev_backend_base="hub.nu-dev.io/multica/backend"
-          nudev_web_base="hub.nu-dev.io/multica/web"
+          nudev_backend_base="${{ secrets.REGISTRY_URL }}/multica/backend"
+          nudev_web_base="${{ secrets.REGISTRY_URL }}/multica/web"
 
           backend_tags=(
             "${dockerhub_backend_base}:sha-${short_sha}"
@@ -139,9 +139,9 @@ jobs:
       - name: Login to NuDev registry
         uses: docker/login-action@v3
         with:
-          registry: hub.nu-dev.io
-          username: ${{ secrets.NUDEV_REGISTRY_USERNAME }}
-          password: ${{ secrets.NUDEV_REGISTRY_PASSWORD }}
+          registry: ${{ secrets.REGISTRY_URL }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
 
       - name: Pull published images
         run: |
