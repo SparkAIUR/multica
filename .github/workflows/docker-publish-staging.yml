@@ -121,4 +121,7 @@ jobs:
             NEXT_PUBLIC_WS_URL=${{ secrets.NEXT_PUBLIC_STAGING_WS_URL }}
             NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_STAGING_API_URL }}
 
-  
+      - name: Deploy to Coolify - Staging
+        run: |
+          curl --request GET '${{ secrets.COOLIFY_WEBHOOK }}' --header 'Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}'
+
