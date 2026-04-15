@@ -40,6 +40,12 @@ describe("CreateWorkspaceModal", () => {
     vi.clearAllMocks();
   });
 
+  it("renders the workspace URL prefix from the current host", async () => {
+    render(<CreateWorkspaceModal onClose={vi.fn()} />);
+
+    expect(await screen.findByText(`${window.location.host}/`)).toBeInTheDocument();
+  });
+
   it("auto-generates the slug until the user edits it", async () => {
     const user = userEvent.setup();
     render(<CreateWorkspaceModal onClose={vi.fn()} />);

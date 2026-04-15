@@ -22,10 +22,12 @@ import {
   isWorkspaceSlugConflict,
   nameToWorkspaceSlug,
 } from "../workspace/slug";
+import { useWorkspaceUrlPrefix } from "../workspace/url-prefix";
 
 export function CreateWorkspaceModal({ onClose }: { onClose: () => void }) {
   const router = useNavigation();
   const createWorkspace = useCreateWorkspace();
+  const workspaceUrlPrefix = useWorkspaceUrlPrefix();
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
   const [slugServerError, setSlugServerError] = useState<string | null>(null);
@@ -123,7 +125,7 @@ export function CreateWorkspaceModal({ onClose }: { onClose: () => void }) {
                 <Label>Workspace URL</Label>
                 <div className="flex items-center gap-0 rounded-md border bg-background focus-within:ring-2 focus-within:ring-ring">
                   <span className="pl-3 text-sm text-muted-foreground select-none">
-                    multica.ai/
+                    {workspaceUrlPrefix}
                   </span>
                   <Input
                     type="text"

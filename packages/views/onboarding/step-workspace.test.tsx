@@ -25,6 +25,12 @@ describe("StepWorkspace", () => {
     vi.clearAllMocks();
   });
 
+  it("renders the workspace URL prefix from the current host", async () => {
+    render(<StepWorkspace onNext={vi.fn()} />);
+
+    expect(await screen.findByText(`${window.location.host}/`)).toBeInTheDocument();
+  });
+
   it("asks the user to change the slug on conflict", async () => {
     const user = userEvent.setup();
     mockCreateWorkspaceMutate.mockImplementation(
