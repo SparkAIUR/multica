@@ -114,11 +114,11 @@ jobs:
           tags: ${{ steps.refs.outputs.web_tags }}
           # REMOTE_API_URL=http://backend:8080
           build-args: |
-            REMOTE_API_URL=${{ vars.STAGING_REMOTE_API_URL }}
-            NEXT_PUBLIC_KEYCLOAK_ISSUER_URL=${{ vars.NEXT_PUBLIC_KEYCLOAK_ISSUER_URL }}
-            NEXT_PUBLIC_KEYCLOAK_CLIENT_ID=${{ vars.NEXT_PUBLIC_KEYCLOAK_CLIENT_ID }}
-            NEXT_PUBLIC_KEYCLOAK_AUTH_URL=${{ vars.NEXT_PUBLIC_KEYCLOAK_AUTH_URL }}
-            NEXT_PUBLIC_WS_URL=${{ vars.NEXT_PUBLIC_STAGING_WS_URL }}
-            NEXT_PUBLIC_API_URL=${{ vars.NEXT_PUBLIC_STAGING_API_URL }}
+            REMOTE_API_URL=${{ secrets.STAGING_REMOTE_API_URL }}
+            NEXT_PUBLIC_KEYCLOAK_ISSUER_URL=${{ secrets.NEXT_PUBLIC_KEYCLOAK_ISSUER_URL }}
+            NEXT_PUBLIC_KEYCLOAK_CLIENT_ID=${{ secrets.NEXT_PUBLIC_KEYCLOAK_CLIENT_ID }}
+            NEXT_PUBLIC_KEYCLOAK_AUTH_URL=${{ secrets.NEXT_PUBLIC_KEYCLOAK_AUTH_URL }}
+            NEXT_PUBLIC_WS_URL=${{ secrets.NEXT_PUBLIC_STAGING_WS_URL }}
+            NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_STAGING_API_URL }}
 
   
