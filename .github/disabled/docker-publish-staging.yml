@@ -72,6 +72,18 @@ jobs:
               "${dockerhub_web_base}:${GITHUB_REF_NAME}"
               "${nudev_web_base}:${GITHUB_REF_NAME}"
             )
+
+            # Publish latest only for stable tags (e.g. v1.2.3, not v1.2.3-rc1).
+            if [[ "${GITHUB_REF_NAME}" != *-* ]]; then
+              backend_tags+=(
+                "${dockerhub_backend_base}:staging"
+                "${nudev_backend_base}:staging"
+              )
+              web_tags+=(
+                "${dockerhub_web_base}:staging"
+                "${nudev_web_base}:staging"
+              )
+            fi
           fi
 
           {
